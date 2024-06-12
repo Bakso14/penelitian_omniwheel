@@ -20,16 +20,14 @@ data_kecepatan current_velocity;
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&current_velocity, incomingData, sizeof(current_velocity));
-  Serial.print("V1= ");
   Serial.print(current_velocity.v1);
-  Serial.print("\t");
+  Serial.print(";");
 
-  Serial.print("V2= ");
   Serial.print(current_velocity.v2);
-  Serial.print("\t");
+  Serial.print(";");
 
-  Serial.print("V3= ");
-  Serial.println(current_velocity.v3);
+  Serial.print(current_velocity.v3);
+  Serial.println(";");
 }
 
 //END
@@ -54,13 +52,7 @@ unsigned long timerDelay = 2000;  // send readings timer
 
 // Callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t sendStatus) {
-  Serial.print("Last Packet Send Status: ");
-  if (sendStatus == ESP_NOW_SEND_SUCCESS){
-    Serial.println("Delivery success");
-  }
-  else{
-    Serial.println("Delivery fail");
-  }
+
 }
 
 void Split(char* e) {
@@ -73,12 +65,12 @@ void Split(char* e) {
     p = strtok(NULL, ",");
     i++;
   };
-  Serial.println(v[0]);
-  Serial.println(v[1]);
-  Serial.println(v[2]);
-  Serial.println(v[3]);
-  Serial.println(v[4]);
-  Serial.println(v[4]);
+  // Serial.println(v[0]);
+  // Serial.println(v[1]);
+  // Serial.println(v[2]);
+  // Serial.println(v[3]);
+  // Serial.println(v[4]);
+  // Serial.println(v[4]);
   myData.a = atoi(v[0]);
   myData.b = atoi(v[1]);
   myData.c = atoi(v[2]);
@@ -92,7 +84,6 @@ void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   if (esp_now_init() != 0) {
-    Serial.println("Error initializing ESP-NOW");
     return;
   }
 
@@ -104,7 +95,6 @@ void setup() {
   peerInfo.encrypt = false;
   
   if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    Serial.println("Failed to add peer");
     return;
   }
 }
@@ -118,7 +108,7 @@ void loop() {
     Split(inputCharArray); // Pass the char array to Split function
 
     delay(1000);
-    Serial.println(inputString);
+    //Serial.println(inputString);
   }
   
 }
