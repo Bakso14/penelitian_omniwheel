@@ -5,7 +5,7 @@
 const float rpm_to_radians = 0.10471975512;
 const float rad_to_deg = 57.29578;
 const int pulsa_per_putaran = 1640;
-const float jar_jari_roda = 0.029;
+const float jar_jari_roda = 2.9;
 
 bool firstloop = true;
 const int BUFFER_SIZE = 50;
@@ -97,7 +97,7 @@ float error2, lastError2, integral2, derivative2, output2;
 float error3, lastError3, integral3, derivative3, output3;
 
 void setPWM1() {
-  error1 = setpoint1 - kecepatan1;
+  error1 = (setpoint1 - kecepatan1)/100;
   integral1 += error1;
   derivative1 = error1 - lastError1;
   output1 = Kp * error1 + Ki * integral1 + Kd * derivative1;
@@ -113,7 +113,7 @@ void setPWM1() {
 }
 
 void setPWM2() {
-  error2 = setpoint2 - kecepatan2;
+  error2 = (setpoint2 - kecepatan2)/100;
   integral2 += error2;
   derivative2 = error2 - lastError2;
   output2 = Kp * error2 + Ki * integral2 + Kd * derivative2;
@@ -129,10 +129,9 @@ void setPWM2() {
 }
 
 void setPWM3() {
-  error3 = setpoint3 - kecepatan3;
+  error3 = (setpoint3 - kecepatan3)/100;
   integral3 += error3;
   derivative3 = error3 - lastError3;
-
   output3 = Kp * error3 + Ki * integral3 + Kd * derivative3;
 
   if (output3 > 255) {
