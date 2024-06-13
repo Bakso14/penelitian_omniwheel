@@ -85,6 +85,7 @@ const float Kd = 0.01; // Turunan
 float setpoint1 = 0.2;
 float setpoint2 = 0.2;
 float setpoint3 = 0.2;
+
 bool motorConn1;
 bool motorConn2;
 bool motorConn3;
@@ -95,6 +96,25 @@ bool motorConn3;
 float error1, lastError1, integral1, derivative1, output1;
 float error2, lastError2, integral2, derivative2, output2;
 float error3, lastError3, integral3, derivative3, output3;
+float errorM1, lastErrorM1, integralM1, derivativeM1, outputM1;
+float errorM2, lastErrorM2, integralM2, derivativeM2, outputM2;
+float errorM3, lastErrorM3, integralM3, derivativeM3, outputM3;
+
+void PIDM1(float setpointM1, float Kp1, float Ki1, float Kd1) {
+  errorM1 = (setpointM1 - kecepatan1)/100;
+  integralM1 += errorM1;
+  derivativeM1 = errorM1 - lastErrorM1;
+  outputM1 = Kp * error1 + Ki * integral1 + Kd * derivative1;
+
+  if (output1 > 255) {
+    output1 = 255;
+  } else if (output1 < 0) {
+    output1 = 0;
+  }
+
+  ledcWrite(ledChannel, output1);
+  lastError1 = error1;
+}
 
 void setPWM1() {
   error1 = (setpoint1 - kecepatan1)/100;
@@ -154,6 +174,18 @@ typedef struct struct_message {
 } struct_message;
 
 struct_message myData;
+
+typedef struct struct_message_pid {
+    int a;
+    float b;
+    int c;
+    float d;
+    float e;
+    float f;
+} struct_message_pid;
+
+struct_message_pid myDataPID;
+
 int condition1;
 int condition2;
 int condition3; 
@@ -241,14 +273,20 @@ void setMotor(int condition1, int condition2, int condition3, float speed1, floa
 }
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  memcpy(&myData, incomingData, sizeof(myData));
-  condition1 = myData.a;
-  condition2 = myData.b;
-  condition3 = myData.c; 
-  speed1 = myData.d; 
-  speed2 = myData.e;
-  speed3 = myData.f;
-  setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+  if(incomingData[0] == 0 || incomingData[0] == 1){
+    memcpy(&myData, incomingData, sizeof(myData));
+    condition1 = myData.a;
+    condition2 = myData.b;
+    condition3 = myData.c; 
+    speed1 = myData.d; 
+    speed2 = myData.e;
+    speed3 = myData.f;
+    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+  }else if(incomingData[0] == 94 || incomingData[0] == 7 || incomingData[0] == 10){
+    memcpy(&myDataPID, incomingData, sizeof(myDataPID));
+
+  }
+  
 }
 
 int encoder_value_dummy;

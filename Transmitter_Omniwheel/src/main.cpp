@@ -45,6 +45,17 @@ typedef struct struct_message {
 
 struct_message myData;
 
+typedef struct struct_message_pid {
+    int a;
+    float b;
+    int c;
+    float d;
+    float e;
+    float f;
+} struct_message_pid;
+
+struct_message_pid myDataPID;
+
 esp_now_peer_info_t peerInfo;
 
 unsigned long lastTime = 0;  
@@ -65,19 +76,24 @@ void Split(char* e) {
     p = strtok(NULL, ",");
     i++;
   };
-  // Serial.println(v[0]);
-  // Serial.println(v[1]);
-  // Serial.println(v[2]);
-  // Serial.println(v[3]);
-  // Serial.println(v[4]);
-  // Serial.println(v[4]);
-  myData.a = atoi(v[0]);
-  myData.b = atoi(v[1]);
-  myData.c = atoi(v[2]);
-  myData.d = atof(v[3]);
-  myData.e = atof(v[4]);
-  myData.f = atof(v[5]);
-  esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+  
+  if(atoi(v[0]) == 0 || atoi(v[0]) == 1 ){
+    myData.a = atoi(v[0]);
+    myData.b = atoi(v[1]);
+    myData.c = atoi(v[2]);
+    myData.d = atof(v[3]);
+    myData.e = atof(v[4]);
+    myData.f = atof(v[5]);
+    esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+  }else if(atoi(v[0]) == 94 || atoi(v[0]) == 7 || atoi(v[0]) == 10){
+    myDataPID.a = atoi(v[0]);
+    myDataPID.b = atoi(v[1]);
+    myDataPID.c = atoi(v[2]);
+    myDataPID.d = atof(v[3]);
+    myDataPID.e = atof(v[4]);
+    myDataPID.f = atof(v[5]);
+    esp_now_send(broadcastAddress, (uint8_t *) &myDataPID, sizeof(myDataPID));
+  }
 };
 
 void setup() {
