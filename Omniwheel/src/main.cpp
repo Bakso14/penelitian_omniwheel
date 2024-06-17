@@ -363,6 +363,8 @@ void loop() {
     current_velocity.v3 = kecepatan3;
     encoder_value3 = 0;
 
+    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+
   }
 
 
@@ -391,11 +393,6 @@ void loop() {
   }
 
 
-  if (firstloop = true) {
-    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
-    firstloop = false;
-  }
-  
 } 
 
 
