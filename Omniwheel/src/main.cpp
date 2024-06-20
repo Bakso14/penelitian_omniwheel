@@ -371,23 +371,9 @@ void loop() {
   unsigned long waktu_display = millis();
   if(waktu_display - waktu_display_sebelumnya >= 200){
     waktu_display_sebelumnya = waktu_display;
-    Serial.print("V1= ");
-    Serial.print(kecepatan1);
-    Serial.print("\t");
-
-    Serial.print("V2= ");
-    Serial.print(kecepatan2);
-    Serial.print("\t");
-
-    Serial.print("V3= ");
-    Serial.print(kecepatan3);
-
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
-    if (result == ESP_OK) {
-      Serial.println("  Sent with success");
-    }
-    else {
-      Serial.println("  Error sending the data");
+    if (result != ESP_OK) {
+      Serial.println("Error sending the data");
     }
 
   }
