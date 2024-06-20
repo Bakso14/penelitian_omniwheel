@@ -34,6 +34,7 @@ volatile int encoder_value3 = 0;
 
 int waktu_sebelumnya = 0;
 int waktu_display_sebelumnya = 0;
+int waktu_pid_sebelumnya = 0;
 
 // setting PWM properties
 const int freq = 5000;
@@ -100,20 +101,45 @@ float errorM1, lastErrorM1, integralM1, derivativeM1, outputM1;
 float errorM2, lastErrorM2, integralM2, derivativeM2, outputM2;
 float errorM3, lastErrorM3, integralM3, derivativeM3, outputM3;
 
-void PIDM1(float setpointM1, float Kp1, float Ki1, float Kd1) {
+float setpointM1,Kp1,Ki1,Kd1;
+bool conditionM1 = 0;
+
+float setpointM2,Kp2,Ki2,Kd2;
+bool conditionM2 = 0;
+
+float setpointM3,Kp3,Ki3,Kd3;
+bool conditionM3 = 0;
+
+void PIDM1() {
+  digitalWrite(in1p, LOW);
+  digitalWrite(in1n, LOW);
+  
+  if(conditionM1 == 1){
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, HIGH);
+  } else if(conditionM1 == 0) {
+    digitalWrite(in1n, LOW);
+    digitalWrite(in1p, HIGH);    
+  }
+
+  if(setpointM1 == 0){
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, LOW);
+  }
+
   errorM1 = (setpointM1 - kecepatan1)/100;
   integralM1 += errorM1;
   derivativeM1 = errorM1 - lastErrorM1;
-  outputM1 = Kp * error1 + Ki * integral1 + Kd * derivative1;
+  outputM1 = Kp1 * errorM1 + Ki1 * integralM1 + Kd1 * derivativeM1;
 
-  if (output1 > 255) {
-    output1 = 255;
-  } else if (output1 < 0) {
-    output1 = 0;
+  if (outputM1 > 255) {
+    outputM1 = 255;
+  } else if (outputM1 < 0) {
+    outputM1 = 0;
   }
 
-  ledcWrite(ledChannel, output1);
-  lastError1 = error1;
+  ledcWrite(ledChannel, outputM1);
+  lastErrorM1 = errorM1;
 }
 
 void setPWM1() {
@@ -192,6 +218,7 @@ int condition3;
 float speed1; 
 float speed2;
 float speed3;
+bool flag_kecepatan = 1;
 
 //Transmitter
 uint8_t broadcastAddress[] = {0x08, 0xB6, 0x1F, 0x71, 0xBB, 0xEC};
@@ -275,15 +302,39 @@ void setMotor(int condition1, int condition2, int condition3, float speed1, floa
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   if(incomingData[0] == 0 || incomingData[0] == 1){
     memcpy(&myData, incomingData, sizeof(myData));
+    flag_kecepatan = 1;
     condition1 = myData.a;
     condition2 = myData.b;
     condition3 = myData.c; 
     speed1 = myData.d; 
     speed2 = myData.e;
     speed3 = myData.f;
-    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+    //Serial.println("Masuk Data Kecepatan");
   }else if(incomingData[0] == 94 || incomingData[0] == 7 || incomingData[0] == 10){
     memcpy(&myDataPID, incomingData, sizeof(myDataPID));
+    flag_kecepatan = 0;
+    if(incomingData[0] == 94){
+      setpointM1 = myDataPID.b;
+      conditionM1 = myDataPID.c;
+      Kp1 = myDataPID.d;
+      Ki1 = myDataPID.e;
+      Kd1 = myDataPID.f;
+
+    }else if(incomingData[0] == 7){
+      setpointM2 = myDataPID.b;
+      conditionM2 = myDataPID.c;
+      Kp2 = myDataPID.d;
+      Ki2 = myDataPID.e;
+      Kd2 = myDataPID.f;
+
+    }else if(incomingData[0] == 10){
+      setpointM3 = myDataPID.b;
+      conditionM3 = myDataPID.c;
+      Kp3 = myDataPID.d;
+      Ki3 = myDataPID.e;
+      Kd3 = myDataPID.f;
+    }
+    //Serial.println("Masuk Data PID");
 
   }
   
@@ -363,8 +414,6 @@ void loop() {
     current_velocity.v3 = kecepatan3;
     encoder_value3 = 0;
 
-    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
-
   }
 
 
@@ -375,8 +424,17 @@ void loop() {
     if (result != ESP_OK) {
       Serial.println("Error sending the data");
     }
-
   }
+
+ // unsigned long waktu_pid = millis();
+  //if(waktu_pid - waktu_pid_sebelumnya >= 5){
+   // waktu_pid_sebelumnya = waktu_pid;
+  if(flag_kecepatan==1){
+    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+  }else if(flag_kecepatan==0){
+    PIDM1();
+  }
+  //}
 
 
 } 
