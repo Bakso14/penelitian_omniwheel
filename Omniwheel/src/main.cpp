@@ -111,9 +111,6 @@ float setpointM3,Kp3,Ki3,Kd3;
 bool conditionM3 = 0;
 
 void PIDM1() {
-  digitalWrite(in1p, LOW);
-  digitalWrite(in1n, LOW);
-  
   if(conditionM1 == 1){
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, HIGH);
@@ -246,13 +243,6 @@ void startTimer() {
 }
 
 void setMotor(int condition1, int condition2, int condition3, float speed1, float speed2, float speed3) {
-  digitalWrite(in1p, LOW);
-  digitalWrite(in1n, LOW);
-  digitalWrite(in2n, LOW);
-  digitalWrite(in2p, LOW);
-  digitalWrite(in3n, LOW);
-  digitalWrite(in3p, LOW);
-  
   if(condition1 == 1){
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, HIGH);
@@ -354,6 +344,13 @@ void setup() {
   pinMode(en3, OUTPUT);
   pinMode(in3p, OUTPUT);
   pinMode(in3n, OUTPUT);
+
+  digitalWrite(in1p, LOW);
+  digitalWrite(in1n, LOW);
+  digitalWrite(in2n, LOW);
+  digitalWrite(in2p, LOW);
+  digitalWrite(in3n, LOW);
+  digitalWrite(in3p, LOW);
 
   pinMode(enc1A, INPUT_PULLUP);
   pinMode(enc1B, INPUT_PULLUP);
