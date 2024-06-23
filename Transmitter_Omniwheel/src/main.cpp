@@ -38,7 +38,7 @@ typedef struct struct_message {
     int motor_code;
     int function_code;
     float sp;
-    float dir;
+    int dir;
     float timer;
 } struct_message;
 
@@ -55,6 +55,18 @@ typedef struct struct_message_pid {
 } struct_message_pid;
 
 struct_message_pid myDataPID;
+
+typedef struct motor {
+    int function_code;
+    int dir1;
+    int dir2;
+    int dir3;
+    float speed1;
+    float speed2;
+    float speed3;
+} motor;
+
+motor motor_keseluruhan;
 
 esp_now_peer_info_t peerInfo;
 
@@ -77,25 +89,36 @@ void Split(char* e) {
     i++;
   };
   
-  if(atoi(v[0]) == 94 || atoi(v[0]) == 7 || atoi(v[0]) == 10){
-    if(atoi(v[1]) == 0){
-      myData.motor_code = atoi(v[0]);
-      myData.function_code = atoi(v[1]);
-      myData.sp = atof(v[2]);
-      myData.dir = atof(v[3]);
-      myData.timer = atof(v[4]);
-      esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-    }else if(atoi(v[1]) == 1){
-      myDataPID.motor_code = atoi(v[0]);
-      myDataPID.function_code = atoi(v[1]);
-      myDataPID.sp = atof(v[2]);
-      myDataPID.dir = atof(v[3]);
-      myDataPID.kp = atof(v[4]);
-      myDataPID.ki = atof(v[5]);
-      myDataPID.kd = atof(v[6]);
-      esp_now_send(broadcastAddress, (uint8_t *) &myDataPID, sizeof(myDataPID));
-    }
+  if(atoi(v[0]) == 0){
+    myDataPID.function_code = atoi(v[0]);
+    myDataPID.motor_code = atoi(v[1]);
+    myDataPID.sp = atof(v[2]);
+    myDataPID.dir = atof(v[3]);
+    myDataPID.kp = atof(v[4]);
+    myDataPID.ki = atof(v[5]);
+    myDataPID.kd = atof(v[6]);
+    esp_now_send(broadcastAddress, (uint8_t *) &myDataPID, sizeof(myDataPID));
+    
+  }else if(atoi(v[0]) == 1){
+    myData.function_code = atoi(v[0]);
+    myData.motor_code = atoi(v[1]);
+    myData.sp = atof(v[2]);
+    myData.dir = atoi(v[3]);
+    myData.timer = atof(v[4]);
+    esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+
+  }else if(atoi(v[0]) == 2){
+    motor_keseluruhan.function_code = atoi(v[0]);
+    motor_keseluruhan.dir1 = atoi(v[1]);
+    motor_keseluruhan.dir2 = atoi(v[2]);
+    motor_keseluruhan.dir3 = atoi(v[3]);
+    motor_keseluruhan.speed1 = atof(v[4]);
+    motor_keseluruhan.speed2 = atof(v[5]);
+    motor_keseluruhan.speed3 = atof(v[6]);
+    esp_now_send(broadcastAddress, (uint8_t *) &motor_keseluruhan, sizeof(motor_keseluruhan));
+
   }
+
 };
 
 void setup() {

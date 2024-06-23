@@ -191,33 +191,45 @@ void setPWM3() {
 }
 
 typedef struct struct_message {
-    int a;
-    int b;
-    int c;
-    float d;
-    float e;
-    float f;
+    int motor_code;
+    int function_code;
+    float sp;
+    int dir;
+    float timer;
 } struct_message;
 
 struct_message myData;
 
 typedef struct struct_message_pid {
-    int a;
-    float b;
-    int c;
-    float d;
-    float e;
-    float f;
+    int motor_code;   
+    int function_code;   
+    float sp; 
+    float dir; 
+    float kp; 
+    float ki;
+    float kd;
 } struct_message_pid;
 
 struct_message_pid myDataPID;
 
-int condition1;
-int condition2;
-int condition3; 
-float speed1; 
-float speed2;
-float speed3;
+typedef struct motor {
+    int function_code;
+    int dir1;
+    int dir2;
+    int dir3;
+    float speed1;
+    float speed2;
+    float speed3;
+} motor;
+
+motor motor_keseluruhan;
+
+int condition1 = 0;
+int condition2 = 0;
+int condition3 = 0; 
+float speed1 = 0; 
+float speed2 = 0;
+float speed3 = 0;
 bool flag_kecepatan = 1;
 
 //Transmitter
@@ -299,45 +311,125 @@ void setMotor(int condition1, int condition2, int condition3, float speed1, floa
   
 }
 
+void setMotor1() {
+  digitalWrite(in1p, LOW);
+  digitalWrite(in1n, LOW);
+  
+  if(condition1 == 1){
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, HIGH);
+  } else if(condition1 == 0) {
+    digitalWrite(in1n, LOW);
+    digitalWrite(in1p, HIGH);    
+  }
+
+  if(speed1 == 0){
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, LOW);
+  }
+  setpoint1 = speed1;
+  setPWM1();
+}
+
+void setMotor2() {
+  digitalWrite(in2n, LOW);
+  digitalWrite(in2p, LOW);
+  
+  if(condition2 == 1){
+    digitalWrite(in2n, LOW);
+    digitalWrite(in2p, HIGH);
+  } else if(condition2 == 0) {
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, HIGH);
+  }
+
+  if(speed2 == 0){
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, LOW);
+  }
+
+  setpoint2 = speed2;
+  setPWM2();
+  
+}
+
+void setMotor3() {
+  digitalWrite(in3n, LOW);
+  digitalWrite(in3p, LOW);
+
+  if(condition3 == 1){
+    digitalWrite(in3n, HIGH);
+    digitalWrite(in3p, LOW);
+  } else if(condition3 == 0) {
+    digitalWrite(in3p, HIGH);
+    digitalWrite(in3n, LOW);
+  }
+
+  if(speed3 == 0){
+    digitalWrite(in3p, LOW);
+    digitalWrite(in3n, LOW);
+  }
+
+  setpoint3 = speed3;
+  setPWM3();
+  
+}
+
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  if(incomingData[0] == 0 || incomingData[0] == 1){
-    memcpy(&myData, incomingData, sizeof(myData));
-    flag_kecepatan = 1;
-    condition1 = myData.a;
-    condition2 = myData.b;
-    condition3 = myData.c; 
-    speed1 = myData.d; 
-    speed2 = myData.e;
-    speed3 = myData.f;
-    //Serial.println("Masuk Data Kecepatan");
-  }else if(incomingData[0] == 94 || incomingData[0] == 7 || incomingData[0] == 10){
+  if(incomingData[0] == 0){
     memcpy(&myDataPID, incomingData, sizeof(myDataPID));
-    flag_kecepatan = 0;
-    if(incomingData[0] == 94){
-      setpointM1 = myDataPID.b;
-      conditionM1 = myDataPID.c;
-      Kp1 = myDataPID.d;
-      Ki1 = myDataPID.e;
-      Kd1 = myDataPID.f;
+    flag_kecepatan = 0;  
+    if(incomingData[1] == 94){
+      setpointM1 = myDataPID.sp;
+      conditionM1 = myDataPID.dir;
+      Kp1 = myDataPID.kp;
+      Ki1 = myDataPID.ki;
+      Kd1 = myDataPID.kd;
 
-    }else if(incomingData[0] == 7){
-      setpointM2 = myDataPID.b;
-      conditionM2 = myDataPID.c;
-      Kp2 = myDataPID.d;
-      Ki2 = myDataPID.e;
-      Kd2 = myDataPID.f;
+    }else if(incomingData[1] == 7){
+      setpointM2 = myDataPID.sp;
+      conditionM2 = myDataPID.dir;
+      Kp2 = myDataPID.kp;
+      Ki2 = myDataPID.ki;
+      Kd2 = myDataPID.kd;
 
-    }else if(incomingData[0] == 10){
-      setpointM3 = myDataPID.b;
-      conditionM3 = myDataPID.c;
-      Kp3 = myDataPID.d;
-      Ki3 = myDataPID.e;
-      Kd3 = myDataPID.f;
+    }else if(incomingData[1] == 10){
+      setpointM2 = myDataPID.sp;
+      conditionM2 = myDataPID.dir;
+      Kp2 = myDataPID.kp;
+      Ki2 = myDataPID.ki;
+      Kd2 = myDataPID.kd;
     }
     //Serial.println("Masuk Data PID");
 
+  }else if(incomingData[0] == 1){
+    memcpy(&myData, incomingData, sizeof(myData));
+    flag_kecepatan = 1;
+    if(incomingData[1] == 94){
+      condition1 = myData.dir;
+      speed1 = myData.sp;
+      
+    }else if(incomingData[1] == 7){
+      condition2 = myData.dir;
+      speed2 = myData.sp; 
+
+    }else if(incomingData[1] == 10){
+      condition3 = myData.dir;
+      speed3 = myData.sp;
+
+    }
+
+  }else if(incomingData[0] == 2){
+      memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
+      flag_kecepatan = 1;
+      condition1 = motor_keseluruhan.dir1;
+      condition2 = motor_keseluruhan.dir2;
+      condition3 = motor_keseluruhan.dir3;
+      speed1 = motor_keseluruhan.speed1;
+      speed2 = motor_keseluruhan.speed2;
+      speed3 = motor_keseluruhan.speed3;
+    //Serial.println("Masuk Data Kecepatan");
   }
-  
 }
 
 int encoder_value_dummy;
@@ -430,7 +522,10 @@ void loop() {
   //if(waktu_pid - waktu_pid_sebelumnya >= 5){
    // waktu_pid_sebelumnya = waktu_pid;
   if(flag_kecepatan==1){
-    setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+    //setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
+    setMotor1();
+    setMotor2();
+    setMotor3();
   }else if(flag_kecepatan==0){
     PIDM1();
   }
