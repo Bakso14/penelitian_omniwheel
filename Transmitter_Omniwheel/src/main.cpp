@@ -35,23 +35,23 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-    int a;
-    int b;
-    int c;
-    float d;
-    float e;
-    float f;
+    int motor_code;
+    int function_code;
+    float sp;
+    float dir;
+    float timer;
 } struct_message;
 
 struct_message myData;
 
 typedef struct struct_message_pid {
-    int a;
-    float b;
-    int c;
-    float d;
-    float e;
-    float f;
+    int motor_code;   
+    int function_code;   
+    float sp; 
+    float dir; 
+    float kp; 
+    float ki;
+    float kd;
 } struct_message_pid;
 
 struct_message_pid myDataPID;
@@ -67,32 +67,34 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t sendStatus) {
 }
 
 void Split(char* e) {
-  char* v[6];
+  char* v[7];
   char *p;
   int i = 0;
   p = strtok(e, ",");
-  while (p && i < 6) {
+  while (p && i < 7) {
     v[i] = p;
     p = strtok(NULL, ",");
     i++;
   };
   
-  if(atoi(v[0]) == 0 || atoi(v[0]) == 1 ){
-    myData.a = atoi(v[0]);
-    myData.b = atoi(v[1]);
-    myData.c = atoi(v[2]);
-    myData.d = atof(v[3]);
-    myData.e = atof(v[4]);
-    myData.f = atof(v[5]);
-    esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-  }else if(atoi(v[0]) == 94 || atoi(v[0]) == 7 || atoi(v[0]) == 10){
-    myDataPID.a = atoi(v[0]);
-    myDataPID.b = atoi(v[1]);
-    myDataPID.c = atoi(v[2]);
-    myDataPID.d = atof(v[3]);
-    myDataPID.e = atof(v[4]);
-    myDataPID.f = atof(v[5]);
-    esp_now_send(broadcastAddress, (uint8_t *) &myDataPID, sizeof(myDataPID));
+  if(atoi(v[0]) == 94 || atoi(v[0]) == 7 || atoi(v[0]) == 10){
+    if(atoi(v[1]) == 0){
+      myData.motor_code = atoi(v[0]);
+      myData.function_code = atoi(v[1]);
+      myData.sp = atof(v[2]);
+      myData.dir = atof(v[3]);
+      myData.timer = atof(v[4]);
+      esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+    }else if(atoi(v[1]) == 1){
+      myDataPID.motor_code = atoi(v[0]);
+      myDataPID.function_code = atoi(v[1]);
+      myDataPID.sp = atof(v[2]);
+      myDataPID.dir = atof(v[3]);
+      myDataPID.kp = atof(v[4]);
+      myDataPID.ki = atof(v[5]);
+      myDataPID.kd = atof(v[6]);
+      esp_now_send(broadcastAddress, (uint8_t *) &myDataPID, sizeof(myDataPID));
+    }
   }
 };
 
