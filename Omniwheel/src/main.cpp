@@ -35,6 +35,9 @@ volatile int encoder_value3 = 0;
 int waktu_sebelumnya = 0;
 int waktu_display_sebelumnya = 0;
 int waktu_pid_sebelumnya = 0;
+int waktu_motor1_sebelumnya = 0;
+int waktu_motor2_sebelumnya = 0;
+int waktu_motor3_sebelumnya = 0;
 
 // setting PWM properties
 const int freq = 5000;
@@ -73,8 +76,6 @@ void encoder_isr3() {
   }
 }
 
-int nilai_sebelumnya1, nilai_sebelumnya2, nilai_sebelumnya3 = 0;
-
 float kecepatan1, kecepatan2, kecepatan3 = 0;
 
 //PID
@@ -86,12 +87,6 @@ const float Kd = 0.01; // Turunan
 float setpoint1 = 0.2;
 float setpoint2 = 0.2;
 float setpoint3 = 0.2;
-
-bool motorConn1;
-bool motorConn2;
-bool motorConn3;
-
-//function
 
 // Variabel PID
 float error1, lastError1, integral1, derivative1, output1;
@@ -111,9 +106,6 @@ float setpointM3,Kp3,Ki3,Kd3;
 bool conditionM3 = 0;
 
 void PIDM1() {
-  digitalWrite(in1p, LOW);
-  digitalWrite(in1n, LOW);
-  
   if(conditionM1 == 1){
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, HIGH);
@@ -230,6 +222,12 @@ int condition3 = 0;
 float speed1 = 0; 
 float speed2 = 0;
 float speed3 = 0;
+int timer_motor1 = 0;
+int timer_motor2 = 0;
+int timer_motor3 = 0;
+bool flag_timer_motor1=0;
+bool flag_timer_motor2=0;
+bool flag_timer_motor3=0;
 bool flag_kecepatan = 1;
 
 //Transmitter
@@ -258,13 +256,6 @@ void startTimer() {
 }
 
 void setMotor(int condition1, int condition2, int condition3, float speed1, float speed2, float speed3) {
-  digitalWrite(in1p, LOW);
-  digitalWrite(in1n, LOW);
-  digitalWrite(in2n, LOW);
-  digitalWrite(in2p, LOW);
-  digitalWrite(in3n, LOW);
-  digitalWrite(in3p, LOW);
-  
   if(condition1 == 1){
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, HIGH);
@@ -312,9 +303,6 @@ void setMotor(int condition1, int condition2, int condition3, float speed1, floa
 }
 
 void setMotor1() {
-  digitalWrite(in1p, LOW);
-  digitalWrite(in1n, LOW);
-  
   if(condition1 == 1){
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, HIGH);
@@ -327,14 +315,24 @@ void setMotor1() {
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, LOW);
   }
-  setpoint1 = speed1;
-  setPWM1();
+
+  if(flag_timer_motor1 == 1){
+    unsigned long waktu_init_motor1 = millis();
+    if(waktu_init_motor1 - waktu_motor1_sebelumnya <= timer_motor1){
+      setpoint1 = speed1;
+      setPWM1();
+    }else{
+      speed1 = 0;
+      flag_timer_motor1 = 0;
+    }
+  }else if(flag_timer_motor1 == 0){
+    waktu_motor1_sebelumnya = millis();
+    setpoint1 = speed1;
+    setPWM1();
+  }
 }
 
 void setMotor2() {
-  digitalWrite(in2n, LOW);
-  digitalWrite(in2p, LOW);
-  
   if(condition2 == 1){
     digitalWrite(in2n, LOW);
     digitalWrite(in2p, HIGH);
@@ -348,15 +346,24 @@ void setMotor2() {
     digitalWrite(in2n, LOW);
   }
 
-  setpoint2 = speed2;
-  setPWM2();
+  if(flag_timer_motor2 == 1){
+    unsigned long waktu_init_motor2 = millis();
+    if(waktu_init_motor2 - waktu_motor2_sebelumnya <= timer_motor2){
+      setpoint2 = speed2;
+      setPWM2();
+    }else{
+      speed2 = 0;
+      flag_timer_motor2 = 0;
+    }
+  }else if(flag_timer_motor2 == 0){
+    waktu_motor2_sebelumnya = millis();
+    setpoint2 = speed2;
+    setPWM2();
+  }
   
 }
 
 void setMotor3() {
-  digitalWrite(in3n, LOW);
-  digitalWrite(in3p, LOW);
-
   if(condition3 == 1){
     digitalWrite(in3n, HIGH);
     digitalWrite(in3p, LOW);
@@ -370,8 +377,20 @@ void setMotor3() {
     digitalWrite(in3n, LOW);
   }
 
-  setpoint3 = speed3;
-  setPWM3();
+  if(flag_timer_motor3 == 1){
+    unsigned long waktu_init_motor3 = millis();
+    if(waktu_init_motor3 - waktu_motor3_sebelumnya <= timer_motor3){
+      setpoint3 = speed3;
+      setPWM3();
+    }else{
+      speed3 = 0;
+      flag_timer_motor3 = 0;
+    }
+  }else if(flag_timer_motor3 == 0){
+    waktu_motor3_sebelumnya = millis();
+    setpoint3 = speed3;
+    setPWM3();
+  }
   
 }
 
@@ -408,14 +427,33 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     if(incomingData[1] == 94){
       condition1 = myData.dir;
       speed1 = myData.sp;
+      timer_motor1 = myData.timer;
+      if(timer_motor1 > 0){
+        flag_timer_motor1 = 1;
+      }else{
+        flag_timer_motor1 = 0;
+      }
+      
       
     }else if(incomingData[1] == 7){
       condition2 = myData.dir;
       speed2 = myData.sp; 
+      timer_motor2 = myData.timer;
+      if(timer_motor2 > 0){
+        flag_timer_motor2 = 1;
+      }else{
+        flag_timer_motor2 = 0;
+      }
 
     }else if(incomingData[1] == 10){
       condition3 = myData.dir;
       speed3 = myData.sp;
+      timer_motor2 = myData.timer;
+      if(timer_motor3 > 0){
+        flag_timer_motor3 = 1;
+      }else{
+        flag_timer_motor3 = 0;
+      }
 
     }
 
@@ -453,6 +491,13 @@ void setup() {
   pinMode(enc2B, INPUT_PULLUP);
   pinMode(enc3A, INPUT_PULLUP);
   pinMode(enc3B, INPUT_PULLUP);
+
+  digitalWrite(in1p, LOW);
+  digitalWrite(in1n, LOW);
+  digitalWrite(in2n, LOW);
+  digitalWrite(in2p, LOW);
+  digitalWrite(in3n, LOW);
+  digitalWrite(in3p, LOW);
 
   attachInterrupt(digitalPinToInterrupt(enc1A), encoder_isr1, CHANGE);
   attachInterrupt(digitalPinToInterrupt(enc2A), encoder_isr2, CHANGE);
