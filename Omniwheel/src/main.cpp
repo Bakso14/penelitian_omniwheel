@@ -183,8 +183,8 @@ void setPWM3() {
 }
 
 typedef struct struct_message {
-    int motor_code;
     int function_code;
+    int motor_code;
     float sp;
     int dir;
     float timer;
@@ -193,8 +193,8 @@ typedef struct struct_message {
 struct_message myData;
 
 typedef struct struct_message_pid {
-    int motor_code;   
-    int function_code;   
+    int function_code; 
+    int motor_code;         
     float sp; 
     float dir; 
     float kp; 
@@ -215,6 +215,8 @@ typedef struct motor {
 } motor;
 
 motor motor_keseluruhan;
+
+struct_message_pid dummy;
 
 int condition1 = 0;
 int condition2 = 0;
@@ -395,36 +397,53 @@ void setMotor3() {
 }
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  if(incomingData[0] == 0){
+  memcpy(&dummy, incomingData, sizeof(dummy));
+  if(dummy.function_code == 0){
     memcpy(&myDataPID, incomingData, sizeof(myDataPID));
     flag_kecepatan = 0;  
-    if(incomingData[1] == 94){
+    if(dummy.motor_code == 94){
       setpointM1 = myDataPID.sp;
       conditionM1 = myDataPID.dir;
       Kp1 = myDataPID.kp;
       Ki1 = myDataPID.ki;
       Kd1 = myDataPID.kd;
 
-    }else if(incomingData[1] == 7){
+    }else if(dummy.motor_code == 7){
       setpointM2 = myDataPID.sp;
       conditionM2 = myDataPID.dir;
       Kp2 = myDataPID.kp;
       Ki2 = myDataPID.ki;
       Kd2 = myDataPID.kd;
 
-    }else if(incomingData[1] == 10){
+    }else if(dummy.motor_code == 10){
       setpointM2 = myDataPID.sp;
       conditionM2 = myDataPID.dir;
       Kp2 = myDataPID.kp;
       Ki2 = myDataPID.ki;
       Kd2 = myDataPID.kd;
     }
-    //Serial.println("Masuk Data PID");
+    Serial.print(myDataPID.function_code);
+    Serial.print(";");
+    Serial.print(myDataPID.motor_code);
+    Serial.print(";");
+    Serial.print(myDataPID.sp);
+    Serial.print(";");
+    Serial.print(myDataPID.dir);
+    Serial.print(";");
+    Serial.print(myDataPID.kp);
+    Serial.print(";");
+    Serial.print(myDataPID.ki);
+    Serial.print(";");
+    Serial.print(myDataPID.kd);
+    Serial.print(";");
+    
+    Serial.println();
+    Serial.println("Masuk Data PID");
 
-  }else if(incomingData[0] == 1){
+  }else if(dummy.function_code == 1){
     memcpy(&myData, incomingData, sizeof(myData));
     flag_kecepatan = 1;
-    if(incomingData[1] == 94){
+    if(dummy.motor_code == 94){
       condition1 = myData.dir;
       speed1 = myData.sp;
       timer_motor1 = myData.timer;
@@ -435,7 +454,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       }
       
       
-    }else if(incomingData[1] == 7){
+    }else if(dummy.motor_code == 7){
       condition2 = myData.dir;
       speed2 = myData.sp; 
       timer_motor2 = myData.timer;
@@ -445,7 +464,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
         flag_timer_motor2 = 0;
       }
 
-    }else if(incomingData[1] == 10){
+    }else if(dummy.motor_code == 10){
       condition3 = myData.dir;
       speed3 = myData.sp;
       timer_motor2 = myData.timer;
@@ -454,10 +473,28 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       }else{
         flag_timer_motor3 = 0;
       }
+      Serial.print(myData.function_code);
+      Serial.print(";");
+      Serial.print(myData.motor_code);
+      Serial.print(";");
+      Serial.print(myData.sp);
+      Serial.print(";");
+      Serial.print(myData.dir);
+      Serial.print(";");
+      Serial.print(myData.timer);
+      Serial.print(";");
+      // Serial.print(myData.dir);
+      // Serial.print(";");
+      // Serial.print(myData.dir);
+      // Serial.print(";");
+      
+      Serial.println();
+      
+      Serial.println("Masuk Data Motor satu persatu");
 
     }
 
-  }else if(incomingData[0] == 2){
+  }else if(dummy.function_code == 2){
       memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
       flag_kecepatan = 1;
       condition1 = motor_keseluruhan.dir1;
@@ -466,7 +503,25 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       speed1 = motor_keseluruhan.speed1;
       speed2 = motor_keseluruhan.speed2;
       speed3 = motor_keseluruhan.speed3;
-    //Serial.println("Masuk Data Kecepatan");
+
+      Serial.print(motor_keseluruhan.function_code);
+      Serial.print(";");
+      Serial.print(motor_keseluruhan.dir1);
+      Serial.print(";");
+      Serial.print(motor_keseluruhan.dir2);
+      Serial.print(";");
+      Serial.print(motor_keseluruhan.dir3);
+      Serial.print(";");
+      Serial.print(motor_keseluruhan.speed1);
+      Serial.print(";");
+      Serial.print(motor_keseluruhan.speed2);
+      Serial.print(";");
+      Serial.print(motor_keseluruhan.speed3);
+      Serial.print(";");
+
+      Serial.println();
+      Serial.println("Masuk Data Keseluruhan");
+
   }
 }
 

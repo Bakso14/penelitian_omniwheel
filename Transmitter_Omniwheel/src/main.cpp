@@ -35,8 +35,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-    int motor_code;
     int function_code;
+    int motor_code;
     float sp;
     int dir;
     float timer;
@@ -45,8 +45,8 @@ typedef struct struct_message {
 struct_message myData;
 
 typedef struct struct_message_pid {
+    int function_code;
     int motor_code;   
-    int function_code;   
     float sp; 
     float dir; 
     float kp; 
