@@ -452,8 +452,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       }else{
         flag_timer_motor1 = 0;
       }
-      
-      
     }else if(dummy.motor_code == 7){
       condition2 = myData.dir;
       speed2 = myData.sp; 
@@ -463,36 +461,34 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       }else{
         flag_timer_motor2 = 0;
       }
-
     }else if(dummy.motor_code == 10){
       condition3 = myData.dir;
       speed3 = myData.sp;
-      timer_motor2 = myData.timer;
+      timer_motor3 = myData.timer;
       if(timer_motor3 > 0){
         flag_timer_motor3 = 1;
       }else{
         flag_timer_motor3 = 0;
       }
-      Serial.print(myData.function_code);
-      Serial.print(";");
-      Serial.print(myData.motor_code);
-      Serial.print(";");
-      Serial.print(myData.sp);
-      Serial.print(";");
-      Serial.print(myData.dir);
-      Serial.print(";");
-      Serial.print(myData.timer);
-      Serial.print(";");
-      // Serial.print(myData.dir);
-      // Serial.print(";");
-      // Serial.print(myData.dir);
-      // Serial.print(";");
-      
-      Serial.println();
-      
-      Serial.println("Masuk Data Motor satu persatu");
-
     }
+
+    Serial.print(myData.function_code);
+    Serial.print(";");
+    Serial.print(myData.motor_code);
+    Serial.print(";");
+    Serial.print(myData.sp);
+    Serial.print(";");
+    Serial.print(myData.dir);
+    Serial.print(";");
+    Serial.print(myData.timer);
+    Serial.print(";");
+    // Serial.print(myData.dir);
+    // Serial.print(";");
+    // Serial.print(myData.dir);
+    // Serial.print(";");
+    Serial.println();
+    
+    Serial.println("Masuk Data Motor satu persatu");
 
   }else if(dummy.function_code == 2){
       memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
