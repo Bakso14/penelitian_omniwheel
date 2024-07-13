@@ -24,8 +24,8 @@ int enc2A = 14;
 int enc2B = 27;
 
 int en3 = 23;
-int in3p = 21;
-int in3n = 22;
+int in3p = 17;
+int in3n = 16;
 int enc3A = 26;
 int enc3B = 25;
 volatile int encoder_value1 = 0; 
