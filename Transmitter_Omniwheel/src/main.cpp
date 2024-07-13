@@ -14,6 +14,7 @@ typedef struct data_kecepatan {
   float v1;
   float v2;
   float v3;
+  float theta;
 }data_kecepatan;
 
 data_kecepatan current_velocity;
@@ -27,6 +28,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print(";");
 
   Serial.print(current_velocity.v3);
+  Serial.print(";");
+
+  Serial.print(current_velocity.theta);
   Serial.println(";");
 }
 

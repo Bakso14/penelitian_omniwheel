@@ -1,6 +1,14 @@
 #include <Arduino.h>
+#include <SPI.h>
 #include <esp_now.h>
 #include <WiFi.h>
+#include "BNO055_support.h"		
+#include <Wire.h>
+
+struct bno055_t myBNO;
+struct bno055_euler myEulerData;
+
+unsigned long lastTime = 0;
 
 const float rpm_to_radians = 0.10471975512;
 const float rad_to_deg = 57.29578;
@@ -239,6 +247,7 @@ typedef struct data_kecepatan {
   float v1;
   float v2;
   float v3;
+  float theta;
 }data_kecepatan;
 
 data_kecepatan current_velocity;
@@ -524,6 +533,12 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 int encoder_value_dummy;
 
 void setup() {
+
+  Wire.begin();
+  BNO_Init(&myBNO); 
+  bno055_set_operation_mode(OPERATION_MODE_NDOF);
+  delay(1);
+
   pinMode(en1, OUTPUT);
   pinMode(in1p, OUTPUT);
   pinMode(in1n, OUTPUT);
@@ -581,6 +596,8 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
+
+
 }
 
 
@@ -604,6 +621,13 @@ void loop() {
 
   }
 
+  if ((millis() - lastTime) >= 100){
+    lastTime = millis();
+    bno055_read_euler_hrp(&myEulerData);
+    // Serial.print("Heading(Yaw): ");
+    // Serial.println(float(myEulerData.h) / 16.00);
+    current_velocity.theta = float(myEulerData.h) / 16.00;
+  }
 
   unsigned long waktu_display = millis();
   if(waktu_display - waktu_display_sebelumnya >= 200){
@@ -626,13 +650,4 @@ void loop() {
     PIDM1();
   }
   //}
-
-
 } 
-
-
-//Maju 0,0,1,0,0.1,0.1
-//Mundur 0,1,0,0,0.1,0.1
-//Kanan 1,0,0,0.2,0.1,0.1
-//Kiri 0,1,1,0.2,0.1,0.1
-//Mati 0,0,0,0,0,0
