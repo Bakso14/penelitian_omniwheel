@@ -132,6 +132,14 @@ void PIDM1() {
   derivativeM1 = errorM1 - lastErrorM1;
   outputM1 = Kp1 * errorM1 + Ki1 * integralM1 + Kd1 * derivativeM1;
 
+  if((Ki1*integralM1) > 255){
+    integralM1 = 255/Ki1;
+  }
+
+  if(Kd1*derivativeM1 > 255){
+    derivativeM1 = 255/Kd1;
+  }
+
   if (outputM1 > 255) {
     outputM1 = 255;
   } else if (outputM1 < 0) {
@@ -147,6 +155,14 @@ void setPWM1() {
   integral1 += error1;
   derivative1 = error1 - lastError1;
   output1 = Kp * error1 + Ki * integral1 + Kd * derivative1;
+
+  if((Ki*integral1) > 255){
+    integral1 = 255/Ki;
+  }
+
+  if(Kd*derivative1 > 255){
+    derivative1 = 255/Kd;
+  }
 
   if (output1 > 255) {
     output1 = 255;
@@ -164,6 +180,14 @@ void setPWM2() {
   derivative2 = error2 - lastError2;
   output2 = Kp * error2 + Ki * integral2 + Kd * derivative2;
 
+  if((Ki*integral2) > 255){
+    integral2 = 255/Ki;
+  }
+
+  if(Kd*derivative2 > 255){
+    derivative2 = 255/Kd;
+  }
+
   if (output2 > 255) {
     output2 = 255;
   } else if (output2 < 0) {
@@ -179,6 +203,14 @@ void setPWM3() {
   integral3 += error3;
   derivative3 = error3 - lastError3;
   output3 = Kp * error3 + Ki * integral3 + Kd * derivative3;
+
+  if((Ki*integral3) > 255){
+    integral1 = 255/Ki;
+  }
+
+  if(Kd*derivative3 > 255){
+    derivative1 = 255/Kd;
+  }
 
   if (output3 > 255) {
     output3 = 255;
