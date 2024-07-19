@@ -150,6 +150,80 @@ void PIDM1() {
   lastErrorM1 = errorM1;
 }
 
+void PIDM2() {
+  if(conditionM2 == 1){
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, HIGH);
+  } else if(conditionM2 == 0) {
+    digitalWrite(in2n, LOW);
+    digitalWrite(in2p, HIGH);    
+  }
+
+  if(setpointM2 == 0){
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, LOW);
+  }
+
+  errorM2 = (setpointM2 - kecepatan2)/100;
+  integralM2 += errorM2;
+  derivativeM2 = errorM2 - lastErrorM2;
+  outputM2 = Kp2 * errorM2 + Ki2 * integralM2 + Kd2 * derivativeM2;
+
+  if((Ki2*integralM2) > 255){
+    integralM2 = 255/Ki2;
+  }
+
+  if(Kd2*derivativeM2 > 255){
+    derivativeM2 = 255/Kd2;
+  }
+
+  if (outputM2 > 255) {
+    outputM2 = 255;
+  } else if (outputM2 < 0) {
+    outputM2 = 0;
+  }
+
+  ledcWrite(ledChannel1, outputM2);
+  lastErrorM2 = errorM2;
+}
+
+void PIDM3() {
+  if(conditionM3 == 1){
+    digitalWrite(in3p, LOW);
+    digitalWrite(in3n, HIGH);
+  } else if(conditionM3 == 0) {
+    digitalWrite(in3n, LOW);
+    digitalWrite(in3p, HIGH);    
+  }
+
+  if(setpointM3 == 0){
+    digitalWrite(in3p, LOW);
+    digitalWrite(in3n, LOW);
+  }
+
+  errorM3 = (setpointM3 - kecepatan3)/100;
+  integralM3 += errorM3;
+  derivativeM3 = errorM3 - lastErrorM3;
+  outputM3 = Kp3 * errorM3 + Ki3 * integralM3 + Kd3 * derivativeM3;
+
+  if((Ki1*integralM3) > 255){
+    integralM3 = 255/Ki3;
+  }
+
+  if(Kd3*derivativeM3 > 255){
+    derivativeM3 = 255/Kd3;
+  }
+
+  if (outputM3 > 255) {
+    outputM3 = 255;
+  } else if (outputM3 < 0) {
+    outputM3 = 0;
+  }
+
+  ledcWrite(ledChannel2, outputM3);
+  lastErrorM3 = errorM3;
+}
+
 void setPWM1() {
   error1 = (setpoint1 - kecepatan1)/100;
   integral1 += error1;
@@ -459,9 +533,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     }else if(dummy.motor_code == 10){
       setpointM2 = myDataPID.sp;
       conditionM2 = myDataPID.dir;
-      Kp2 = myDataPID.kp;
-      Ki2 = myDataPID.ki;
-      Kd2 = myDataPID.kd;
+      Kp3 = myDataPID.kp;
+      Ki3 = myDataPID.ki;
+      Kd3 = myDataPID.kd;
     }
     Serial.print(myDataPID.function_code);
     Serial.print(";");
@@ -680,6 +754,8 @@ void loop() {
     setMotor3();
   }else if(flag_kecepatan==0){
     PIDM1();
+    PIDM2();
+    PIDM3();
   }
   //}
 } 
