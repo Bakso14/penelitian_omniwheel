@@ -531,8 +531,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       Kd2 = myDataPID.kd;
 
     }else if(dummy.motor_code == 10){
-      setpointM2 = myDataPID.sp;
-      conditionM2 = myDataPID.dir;
+      setpointM3 = myDataPID.sp;
+      conditionM3 = myDataPID.dir;
       Kp3 = myDataPID.kp;
       Ki3 = myDataPID.ki;
       Kd3 = myDataPID.kd;
@@ -752,6 +752,15 @@ void loop() {
     setMotor1();
     setMotor2();
     setMotor3();
+    Kp1 =0;
+    Kp2 =0;
+    Kp3 =0;
+    Ki1 =0;
+    Ki2 =0;
+    Ki3 =0;
+    Kd1 =0;
+    Kd2 =0;
+    Kd3 =0;
   }else if(flag_kecepatan==0){
     PIDM1();
     PIDM2();
