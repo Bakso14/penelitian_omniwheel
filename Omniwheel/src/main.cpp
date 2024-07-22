@@ -127,7 +127,7 @@ void PIDM1() {
     digitalWrite(in1n, LOW);
   }
 
-  errorM1 = (setpointM1 - kecepatan1)/100;
+  errorM1 = (setpointM1 - kecepatan1);
   integralM1 += errorM1;
   derivativeM1 = errorM1 - lastErrorM1;
   outputM1 = Kp1 * errorM1 + Ki1 * integralM1 + Kd1 * derivativeM1;
@@ -164,7 +164,7 @@ void PIDM2() {
     digitalWrite(in2n, LOW);
   }
 
-  errorM2 = (setpointM2 - kecepatan2)/100;
+  errorM2 = (setpointM2 - kecepatan2);
   integralM2 += errorM2;
   derivativeM2 = errorM2 - lastErrorM2;
   outputM2 = Kp2 * errorM2 + Ki2 * integralM2 + Kd2 * derivativeM2;
@@ -201,7 +201,7 @@ void PIDM3() {
     digitalWrite(in3n, LOW);
   }
 
-  errorM3 = (setpointM3 - kecepatan3)/100;
+  errorM3 = (setpointM3 - kecepatan3);
   integralM3 += errorM3;
   derivativeM3 = errorM3 - lastErrorM3;
   outputM3 = Kp3 * errorM3 + Ki3 * integralM3 + Kd3 * derivativeM3;
@@ -537,24 +537,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       Ki3 = myDataPID.ki;
       Kd3 = myDataPID.kd;
     }
-    Serial.print(myDataPID.function_code);
-    Serial.print(";");
-    Serial.print(myDataPID.motor_code);
-    Serial.print(";");
-    Serial.print(myDataPID.sp);
-    Serial.print(";");
-    Serial.print(myDataPID.dir);
-    Serial.print(";");
-    Serial.print(myDataPID.kp);
-    Serial.print(";");
-    Serial.print(myDataPID.ki);
-    Serial.print(";");
-    Serial.print(myDataPID.kd);
-    Serial.print(";");
-    
-    Serial.println();
-    Serial.println("Masuk Data PID");
-
   }else if(dummy.function_code == 1){
     memcpy(&myData, incomingData, sizeof(myData));
     flag_kecepatan = 1;
@@ -586,25 +568,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
         flag_timer_motor3 = 0;
       }
     }
-
-    Serial.print(myData.function_code);
-    Serial.print(";");
-    Serial.print(myData.motor_code);
-    Serial.print(";");
-    Serial.print(myData.sp);
-    Serial.print(";");
-    Serial.print(myData.dir);
-    Serial.print(";");
-    Serial.print(myData.timer);
-    Serial.print(";");
-    // Serial.print(myData.dir);
-    // Serial.print(";");
-    // Serial.print(myData.dir);
-    // Serial.print(";");
-    Serial.println();
-    
-    Serial.println("Masuk Data Motor satu persatu");
-
   }else if(dummy.function_code == 2){
       memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
       flag_kecepatan = 1;
@@ -614,25 +577,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       speed1 = motor_keseluruhan.speed1;
       speed2 = motor_keseluruhan.speed2;
       speed3 = motor_keseluruhan.speed3;
-
-      Serial.print(motor_keseluruhan.function_code);
-      Serial.print(";");
-      Serial.print(motor_keseluruhan.dir1);
-      Serial.print(";");
-      Serial.print(motor_keseluruhan.dir2);
-      Serial.print(";");
-      Serial.print(motor_keseluruhan.dir3);
-      Serial.print(";");
-      Serial.print(motor_keseluruhan.speed1);
-      Serial.print(";");
-      Serial.print(motor_keseluruhan.speed2);
-      Serial.print(";");
-      Serial.print(motor_keseluruhan.speed3);
-      Serial.print(";");
-
-      Serial.println();
-      Serial.println("Masuk Data Keseluruhan");
-
   }
 }
 
