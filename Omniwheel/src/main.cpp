@@ -206,7 +206,7 @@ void PIDM3() {
   derivativeM3 = errorM3 - lastErrorM3;
   outputM3 = Kp3 * errorM3 + Ki3 * integralM3 + Kd3 * derivativeM3;
 
-  if((Ki1*integralM3) > 255){
+  if((Ki3*integralM3) > 255){
     integralM3 = 255/Ki3;
   }
 
@@ -517,6 +517,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     memcpy(&myDataPID, incomingData, sizeof(myDataPID));
     flag_kecepatan = 0;  
     if(dummy.motor_code == 94){
+      Kp1 =0;
+      Kp2 =0;
+      Kp3 =0;
+      Ki1 =0;
+      Ki2 =0;
+      Ki3 =0;
+      Kd1 =0;
+      Kd2 =0;
+      Kd3 =0;
       setpointM1 = myDataPID.sp;
       conditionM1 = myDataPID.dir;
       Kp1 = myDataPID.kp;
@@ -524,6 +533,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       Kd1 = myDataPID.kd;
 
     }else if(dummy.motor_code == 7){
+      Kp1 =0;
+      Kp2 =0;
+      Kp3 =0;
+      Ki1 =0;
+      Ki2 =0;
+      Ki3 =0;
+      Kd1 =0;
+      Kd2 =0;
+      Kd3 =0;
       setpointM2 = myDataPID.sp;
       conditionM2 = myDataPID.dir;
       Kp2 = myDataPID.kp;
@@ -531,6 +549,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       Kd2 = myDataPID.kd;
 
     }else if(dummy.motor_code == 10){
+      Kp1 =0;
+      Kp2 =0;
+      Kp3 =0;
+      Ki1 =0;
+      Ki2 =0;
+      Ki3 =0;
+      Kd1 =0;
+      Kd2 =0;
+      Kd3 =0;
       setpointM3 = myDataPID.sp;
       conditionM3 = myDataPID.dir;
       Kp3 = myDataPID.kp;
@@ -696,15 +723,6 @@ void loop() {
     setMotor1();
     setMotor2();
     setMotor3();
-    Kp1 =0;
-    Kp2 =0;
-    Kp3 =0;
-    Ki1 =0;
-    Ki2 =0;
-    Ki3 =0;
-    Kd1 =0;
-    Kd2 =0;
-    Kd3 =0;
   }else if(flag_kecepatan==0){
     PIDM1();
     PIDM2();
