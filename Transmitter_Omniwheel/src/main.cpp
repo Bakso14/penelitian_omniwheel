@@ -72,6 +72,21 @@ typedef struct motor {
 
 motor motor_keseluruhan;
 
+typedef struct motor_sinkron {
+    int function_code;
+    int dir1;
+    int dir2;
+    int dir3;
+    float speed1;
+    float speed2;
+    float speed3;
+    long timer1;
+    long timer2;
+    long timer3;
+} motor_sinkron;
+
+motor_sinkron sinkron_motor;
+
 esp_now_peer_info_t peerInfo;
 
 unsigned long lastTime = 0;  
@@ -83,11 +98,11 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t sendStatus) {
 }
 
 void Split(char* e) {
-  char* v[7];
+  char* v[10];
   char *p;
   int i = 0;
   p = strtok(e, ",");
-  while (p && i < 7) {
+  while (p && i < 10) {
     v[i] = p;
     p = strtok(NULL, ",");
     i++;
@@ -121,6 +136,18 @@ void Split(char* e) {
     motor_keseluruhan.speed3 = atof(v[6]);
     esp_now_send(broadcastAddress, (uint8_t *) &motor_keseluruhan, sizeof(motor_keseluruhan));
 
+  }else if(atoi(v[0]) == 3){
+    sinkron_motor.function_code = atoi(v[0]);
+    sinkron_motor.dir1 = atoi(v[1]);
+    sinkron_motor.dir2 = atoi(v[2]);
+    sinkron_motor.dir3 = atoi(v[3]);
+    sinkron_motor.speed1 = atof(v[4]);
+    sinkron_motor.speed2 = atof(v[5]);
+    sinkron_motor.speed3 = atof(v[6]);
+    sinkron_motor.timer1 = atol(v[7]);
+    sinkron_motor.timer2 = atol(v[8]);
+    sinkron_motor.timer3 = atol(v[9]);
+    esp_now_send(broadcastAddress, (uint8_t *) &sinkron_motor, sizeof(sinkron_motor));
   }
 
 };

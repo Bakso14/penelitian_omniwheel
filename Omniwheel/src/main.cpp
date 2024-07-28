@@ -330,6 +330,22 @@ typedef struct motor {
 
 motor motor_keseluruhan;
 
+typedef struct motor_sinkron {
+    int function_code;
+    int dir1;
+    int dir2;
+    int dir3;
+    float speed1;
+    float speed2;
+    float speed3;
+    long timer1;
+    long timer2;
+    long timer3;
+} motor_sinkron;
+
+motor_sinkron sinkron_motor;
+
+
 struct_message_pid dummy;
 
 int condition1 = 0;
@@ -595,16 +611,50 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
         flag_timer_motor3 = 0;
       }
     }
+
   }else if(dummy.function_code == 2){
-      memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
-      flag_kecepatan = 1;
-      condition1 = motor_keseluruhan.dir1;
-      condition2 = motor_keseluruhan.dir2;
-      condition3 = motor_keseluruhan.dir3;
-      speed1 = motor_keseluruhan.speed1;
-      speed2 = motor_keseluruhan.speed2;
-      speed3 = motor_keseluruhan.speed3;
+    memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
+    flag_kecepatan = 1;
+    condition1 = motor_keseluruhan.dir1;
+    condition2 = motor_keseluruhan.dir2;
+    condition3 = motor_keseluruhan.dir3;
+    speed1 = motor_keseluruhan.speed1;
+    speed2 = motor_keseluruhan.speed2;
+    speed3 = motor_keseluruhan.speed3;
+
+  }else if(dummy.function_code == 3){
+    memcpy(&sinkron_motor, incomingData, sizeof(sinkron_motor));
+    flag_kecepatan = 1;
+    
+    condition1 = sinkron_motor.dir1;
+    speed1 = sinkron_motor.speed1;
+    timer_motor1 = sinkron_motor.timer1;
+    if(timer_motor1 > 0){
+      flag_timer_motor1 = 1;
+    }else{
+      flag_timer_motor1 = 0;
+    }
+  
+    condition2 = sinkron_motor.dir2;
+    speed2 = sinkron_motor.speed2;
+    timer_motor2 = sinkron_motor.timer2;
+    if(timer_motor2 > 0){
+      flag_timer_motor2 = 1;
+    }else{
+      flag_timer_motor2 = 0;
+    }
+  
+    condition3 = sinkron_motor.dir3;
+    speed3 = sinkron_motor.speed3;
+    timer_motor3 = sinkron_motor.timer3;
+    if(timer_motor3 > 0){
+      flag_timer_motor3 = 1;
+    }else{
+      flag_timer_motor3 = 0;
+    }
+    
   }
+  
 }
 
 int encoder_value_dummy;
