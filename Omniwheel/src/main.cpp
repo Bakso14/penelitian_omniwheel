@@ -5,6 +5,8 @@
 #include "BNO055_support.h"		
 #include <Wire.h>
 
+//https://youtu.be/rUbmW4qAh8w?si=d8ImdF8glph8iRu_
+
 struct bno055_t myBNO;
 struct bno055_euler myEulerData;
 
