@@ -42,6 +42,10 @@ volatile int encoder_value1 = 0;
 volatile int encoder_value2 = 0; 
 volatile int encoder_value3 = 0; 
 
+volatile int encoder_value1_jarak = 0; 
+volatile int encoder_value2_jarak = 0; 
+volatile int encoder_value3_jarak = 0; 
+
 int waktu_sebelumnya = 0;
 int waktu_display_sebelumnya = 0;
 int waktu_pid_sebelumnya = 0;
@@ -61,8 +65,10 @@ void encoder_isr1() {
   int B = digitalRead(enc1B);
   if ((A == HIGH) != (B == LOW)) {
     encoder_value1--;
+    encoder_value1_jarak--;
   } else {
     encoder_value1++;
+    encoder_value1_jarak++;
   }
 }
 
@@ -71,8 +77,10 @@ void encoder_isr2() {
   int B = digitalRead(enc2B);
   if ((A == HIGH) != (B == LOW)) {
     encoder_value2--;
+    encoder_value2_jarak--;
   } else {
     encoder_value2++;
+    encoder_value2_jarak++; 
   }
 }
 
@@ -81,8 +89,10 @@ void encoder_isr3() {
   int B = digitalRead(enc3B);
   if ((A == HIGH) != (B == LOW)) {
     encoder_value3--;
+    encoder_value3_jarak--;
   } else {
     encoder_value3++;
+    encoder_value3_jarak++;
   }
 }
 
@@ -531,7 +541,10 @@ void setMotor3() {
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&dummy, incomingData, sizeof(dummy));
-  if(dummy.function_code == 0){
+  
+  switch (dummy.function_code)
+  {
+  case 0:
     memcpy(&myDataPID, incomingData, sizeof(myDataPID));
     flag_kecepatan = 0;  
     if(dummy.motor_code == 94){
@@ -582,7 +595,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       Ki3 = myDataPID.ki;
       Kd3 = myDataPID.kd;
     }
-  }else if(dummy.function_code == 1){
+    break;
+  
+  case 1:
     memcpy(&myData, incomingData, sizeof(myData));
     flag_kecepatan = 1;
     if(dummy.motor_code == 94){
@@ -613,8 +628,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
         flag_timer_motor3 = 0;
       }
     }
-
-  }else if(dummy.function_code == 2){
+    break;
+  
+  case 2:
     memcpy(&motor_keseluruhan, incomingData, sizeof(motor_keseluruhan));
     flag_kecepatan = 1;
     condition1 = motor_keseluruhan.dir1;
@@ -623,8 +639,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     speed1 = motor_keseluruhan.speed1;
     speed2 = motor_keseluruhan.speed2;
     speed3 = motor_keseluruhan.speed3;
-
-  }else if(dummy.function_code == 3){
+    break;
+  
+  case 3:
     memcpy(&sinkron_motor, incomingData, sizeof(sinkron_motor));
     flag_kecepatan = 1;
     
@@ -636,7 +653,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     }else{
       flag_timer_motor1 = 0;
     }
-  
+
     condition2 = sinkron_motor.dir2;
     speed2 = sinkron_motor.speed2;
     timer_motor2 = sinkron_motor.timer2;
@@ -645,7 +662,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     }else{
       flag_timer_motor2 = 0;
     }
-  
+
     condition3 = sinkron_motor.dir3;
     speed3 = sinkron_motor.speed3;
     timer_motor3 = sinkron_motor.timer3;
@@ -654,7 +671,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     }else{
       flag_timer_motor3 = 0;
     }
-    
+    break;
+
   }
   
 }
@@ -753,8 +771,6 @@ void loop() {
   if ((millis() - lastTime) >= 100){
     lastTime = millis();
     bno055_read_euler_hrp(&myEulerData);
-    // Serial.print("Heading(Yaw): ");
-    // Serial.println(float(myEulerData.h) / 16.00);
     current_velocity.theta = float(myEulerData.h) / 16.00;
   }
 
@@ -767,11 +783,7 @@ void loop() {
     }
   }
 
- // unsigned long waktu_pid = millis();
-  //if(waktu_pid - waktu_pid_sebelumnya >= 5){
-   // waktu_pid_sebelumnya = waktu_pid;
   if(flag_kecepatan==1){
-    //setMotor(condition1, condition2, condition3, speed1, speed2, speed3);
     setMotor1();
     setMotor2();
     setMotor3();
