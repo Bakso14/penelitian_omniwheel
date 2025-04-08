@@ -16,6 +16,8 @@ const float rpm_to_radians = 0.10471975512;
 const float rad_to_deg = 57.29578;
 const int pulsa_per_putaran = 1640;
 const float jar_jari_roda = 2.9;
+const float keliling_roda = 2 * PI * jar_jari_roda;
+const float cm_per_pulsa = keliling_roda / pulsa_per_putaran;
 
 bool firstloop = true;
 const int BUFFER_SIZE = 50;
@@ -758,15 +760,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     
     condition1 = sinkron_motor.dir1;
     speed1 = sinkron_motor.speed1;
-    jarak_motor1 = sinkron_motor.timer1;
+    jarak_motor1 = sinkron_motor.timer1 / cm_per_pulsa;
     
     condition2 = sinkron_motor.dir2;
     speed2 = sinkron_motor.speed2;
-    jarak_motor2 = sinkron_motor.timer2;
+    jarak_motor2 = sinkron_motor.timer2 / cm_per_pulsa;
     
     condition3 = sinkron_motor.dir3;
     speed3 = sinkron_motor.speed3;
-    jarak_motor3 = sinkron_motor.timer3;
+    jarak_motor3 = sinkron_motor.timer3 / cm_per_pulsa;
     
     break;
 
