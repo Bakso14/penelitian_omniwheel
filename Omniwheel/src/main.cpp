@@ -369,6 +369,9 @@ float speed3 = 0;
 int timer_motor1 = 0;
 int timer_motor2 = 0;
 int timer_motor3 = 0;
+long jarak_motor1 = 0;
+long jarak_motor2 = 0;
+long jarak_motor3 = 0;
 bool flag_timer_motor1=0;
 bool flag_timer_motor2=0;
 bool flag_timer_motor3=0;
@@ -539,9 +542,85 @@ void setMotor3() {
   
 }
 
+void setMotor1_jarak() {
+  if(condition1 == 1){
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, HIGH);
+  } else if(condition1 == 0) {
+    digitalWrite(in1n, LOW);
+    digitalWrite(in1p, HIGH);    
+  }
+
+  if(speed1 == 0){
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, LOW);
+  }
+
+  if(encoder_value1_jarak < jarak_motor1){
+    setpoint1 = speed1;
+    setPWM1();
+  }else{
+    setpoint1 = 0;
+    digitalWrite(in1p, LOW);
+    digitalWrite(in1n, LOW);
+    ledcWrite(ledChannel, 0);
+  }
+}
+
+void setMotor2_jarak() {
+  if(condition2 == 1){
+    digitalWrite(in2n, LOW);
+    digitalWrite(in2p, HIGH);
+  } else if(condition2 == 0) {
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, HIGH);
+  }
+
+  if(speed2 == 0){
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, LOW);
+  }
+
+  if(encoder_value2_jarak < jarak_motor2){
+    setpoint2 = speed2;
+    setPWM2();
+  }else{
+    setpoint2 = 0;
+    digitalWrite(in2p, LOW);
+    digitalWrite(in2n, LOW);
+    ledcWrite(ledChannel1, 0);
+  }
+  
+}
+void setMotor3_jarak() {
+  if(condition3 == 1){
+    digitalWrite(in3n, HIGH);
+    digitalWrite(in3p, LOW);
+  } else if(condition3 == 0) {
+    digitalWrite(in3p, HIGH);
+    digitalWrite(in3n, LOW);
+  }
+
+  if(speed3 == 0){
+    digitalWrite(in3p, LOW);
+    digitalWrite(in3n, LOW);
+  }
+
+  if(encoder_value3_jarak < jarak_motor3){
+    setpoint3 = speed3;
+    setPWM3();
+  }else{
+    setpoint3 = 0;
+    digitalWrite(in3p, LOW);
+    digitalWrite(in3n, LOW);
+    ledcWrite(ledChannel2, 0);
+  }
+  
+}
+
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&dummy, incomingData, sizeof(dummy));
-  
+
   switch (dummy.function_code)
   {
   case 0:
@@ -672,6 +751,25 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       flag_timer_motor3 = 0;
     }
     break;
+  
+  case 4:
+    memcpy(&sinkron_motor, incomingData, sizeof(sinkron_motor));
+    flag_kecepatan = 2;
+    
+    condition1 = sinkron_motor.dir1;
+    speed1 = sinkron_motor.speed1;
+    jarak_motor1 = sinkron_motor.timer1;
+    
+    condition2 = sinkron_motor.dir2;
+    speed2 = sinkron_motor.speed2;
+    jarak_motor2 = sinkron_motor.timer2;
+    
+    condition3 = sinkron_motor.dir3;
+    speed3 = sinkron_motor.speed3;
+    jarak_motor3 = sinkron_motor.timer3;
+    
+    break;
+
 
   }
   
@@ -791,6 +889,10 @@ void loop() {
     PIDM1();
     PIDM2();
     PIDM3();
+  }else if(flag_kecepatan==2){
+    setMotor1_jarak();
+    setMotor2_jarak();
+    setMotor3_jarak();
   }
-  //}
+
 } 
