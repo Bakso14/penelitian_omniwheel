@@ -377,7 +377,7 @@ long jarak_motor3 = 0;
 bool flag_timer_motor1=0;
 bool flag_timer_motor2=0;
 bool flag_timer_motor3=0;
-bool flag_kecepatan = 1;
+int flag_kecepatan = 1;
 
 //Transmitter
 uint8_t broadcastAddress[] = {0x08, 0xB6, 0x1F, 0x71, 0xBB, 0xEC};
@@ -387,6 +387,9 @@ typedef struct data_kecepatan {
   float v2;
   float v3;
   float theta;
+  int S1;
+  int S2;
+  int S3;
 }data_kecepatan;
 
 data_kecepatan current_velocity;
@@ -557,15 +560,18 @@ void setMotor1_jarak() {
     digitalWrite(in1p, LOW);
     digitalWrite(in1n, LOW);
   }
-
-  if(encoder_value1_jarak < jarak_motor1){
+  // Serial.print("MOTOR1");
+  if(abs(encoder_value1_jarak) < jarak_motor1){
     setpoint1 = speed1;
     setPWM1();
+    // Serial.print("\t");
+    // Serial.print(output1);
   }else{
+    speed1 = 0;
     setpoint1 = 0;
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, LOW);
-    ledcWrite(ledChannel, 0);
+    setPWM1();
+    // Serial.print("\t");
+    // Serial.print("Stop Motor 1");
   }
 }
 
@@ -582,15 +588,19 @@ void setMotor2_jarak() {
     digitalWrite(in2p, LOW);
     digitalWrite(in2n, LOW);
   }
-
-  if(encoder_value2_jarak < jarak_motor2){
+  // Serial.print("\t");
+  // Serial.print("MOTOR2");
+  if(abs(encoder_value2_jarak) < jarak_motor2){
     setpoint2 = speed2;
     setPWM2();
+    // Serial.print("\t");
+    // Serial.print(output2);
   }else{
+    speed2 = 0;
     setpoint2 = 0;
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, LOW);
-    ledcWrite(ledChannel1, 0);
+    setPWM2();
+    // Serial.print("\t");
+    // Serial.print("Stop Motor 2");
   }
   
 }
@@ -607,15 +617,19 @@ void setMotor3_jarak() {
     digitalWrite(in3p, LOW);
     digitalWrite(in3n, LOW);
   }
-
-  if(encoder_value3_jarak < jarak_motor3){
+  // Serial.print("\t");
+  // Serial.print("MOTOR3");
+  if(abs(encoder_value3_jarak) < jarak_motor3){
     setpoint3 = speed3;
     setPWM3();
+    // Serial.print("\t");
+    // Serial.println(output3);
   }else{
+    speed3 = 0;
     setpoint3 = 0;
-    digitalWrite(in3p, LOW);
-    digitalWrite(in3n, LOW);
-    ledcWrite(ledChannel2, 0);
+    setPWM3();
+    // Serial.print("\t");
+    // Serial.println("Stop Motor 3");
   }
   
 }
@@ -756,6 +770,10 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   
   case 4:
     memcpy(&sinkron_motor, incomingData, sizeof(sinkron_motor));
+    encoder_value1_jarak = 0;
+    encoder_value2_jarak = 0;
+    encoder_value3_jarak = 0;
+
     flag_kecepatan = 2;
     
     condition1 = sinkron_motor.dir1;
@@ -769,7 +787,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     condition3 = sinkron_motor.dir3;
     speed3 = sinkron_motor.speed3;
     jarak_motor3 = sinkron_motor.timer3 / cm_per_pulsa;
-    
+
     break;
 
 
@@ -778,6 +796,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 }
 
 int encoder_value_dummy;
+
+void menampilkan_data_serial(){
+  Serial.print(kecepatan1);
+  Serial.print("\t");
+  Serial.print(kecepatan2);
+  Serial.print("\t");
+  Serial.print(kecepatan3);
+  Serial.println("\t");
+}
 
 void setup() {
 
@@ -877,21 +904,30 @@ void loop() {
   unsigned long waktu_display = millis();
   if(waktu_display - waktu_display_sebelumnya >= 200){
     waktu_display_sebelumnya = waktu_display;
+
+    current_velocity.S1 = encoder_value1_jarak;
+    current_velocity.S2 = encoder_value2_jarak;
+    current_velocity.S3 = encoder_value3_jarak;
+    
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
     if (result != ESP_OK) {
       Serial.println("Error sending the data");
     }
+
+    // menampilkan_data_serial();
   }
 
-  if(flag_kecepatan==1){
+  if(flag_kecepatan == 1){
     setMotor1();
     setMotor2();
     setMotor3();
-  }else if(flag_kecepatan==0){
+
+  }else if(flag_kecepatan == 0){
     PIDM1();
     PIDM2();
     PIDM3();
-  }else if(flag_kecepatan==2){
+
+  }else if(flag_kecepatan == 2){
     setMotor1_jarak();
     setMotor2_jarak();
     setMotor3_jarak();

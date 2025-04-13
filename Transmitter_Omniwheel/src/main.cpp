@@ -15,6 +15,9 @@ typedef struct data_kecepatan {
   float v2;
   float v3;
   float theta;
+  int S1;
+  int S2;
+  int S3;
 }data_kecepatan;
 
 data_kecepatan current_velocity;
@@ -31,6 +34,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print(";");
 
   Serial.print(current_velocity.theta);
+  Serial.print(";");
+
+  Serial.print(current_velocity.S1);
+  Serial.print(";");
+
+  Serial.print(current_velocity.S2);
+  Serial.print(";");
+
+  Serial.print(current_velocity.S3);
   Serial.println(";");
 }
 
@@ -137,6 +149,19 @@ void Split(char* e) {
     esp_now_send(broadcastAddress, (uint8_t *) &motor_keseluruhan, sizeof(motor_keseluruhan));
 
   }else if(atoi(v[0]) == 3){
+    sinkron_motor.function_code = atoi(v[0]);
+    sinkron_motor.dir1 = atoi(v[1]);
+    sinkron_motor.dir2 = atoi(v[2]);
+    sinkron_motor.dir3 = atoi(v[3]);
+    sinkron_motor.speed1 = atof(v[4]);
+    sinkron_motor.speed2 = atof(v[5]);
+    sinkron_motor.speed3 = atof(v[6]);
+    sinkron_motor.timer1 = atol(v[7]);
+    sinkron_motor.timer2 = atol(v[8]);
+    sinkron_motor.timer3 = atol(v[9]);
+    esp_now_send(broadcastAddress, (uint8_t *) &sinkron_motor, sizeof(sinkron_motor));
+  
+  }else if(atoi(v[0]) == 4){
     sinkron_motor.function_code = atoi(v[0]);
     sinkron_motor.dir1 = atoi(v[1]);
     sinkron_motor.dir2 = atoi(v[2]);
