@@ -23,23 +23,32 @@ bool firstloop = true;
 const int BUFFER_SIZE = 50;
 char serialBuffer[BUFFER_SIZE];
 
-int en1 = 15;
-int in1p = 2;
-int in1n = 4;
-int enc1A = 13;
+// int en1A = 18;
+// int en1B = 4;
+// int enc1A = 34;
+// int enc1B = 35;
+
+// int en2A = 2;
+// int en2B = 13;
+// int enc2A = 32;
+// int enc2B = 33;
+
+int en2A = 18;
+int en2B = 4;
+int enc2A = 35;
+int enc2B = 34;
+
+int en1A = 2;
+int en1B = 13;
+int enc1A = 32;
 int enc1B = 33;
 
-int en2 = 19;
-int in2p = 5;
-int in2n = 18;
-int enc2A = 14;
-int enc2B = 27;
+int en3A = 14;
+int en3B = 27;
+int enc3A = 25;
+int enc3B = 26;
 
-int en3 = 23;
-int in3p = 17;
-int in3n = 16;
-int enc3A = 26;
-int enc3B = 25;
+
 volatile int encoder_value1 = 0; 
 volatile int encoder_value2 = 0; 
 volatile int encoder_value3 = 0; 
@@ -60,6 +69,9 @@ const int freq = 5000;
 const int ledChannel = 0;
 const int ledChannel1 = 1;
 const int ledChannel2 = 2;
+const int ledChannel3 = 3;
+const int ledChannel4 = 4;
+const int ledChannel5 = 5;
 const int resolution = 8;
   
 void encoder_isr1() {
@@ -128,19 +140,6 @@ float setpointM3,Kp3,Ki3,Kd3;
 bool conditionM3 = 0;
 
 void PIDM1() {
-  if(conditionM1 == 1){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, HIGH);
-  } else if(conditionM1 == 0) {
-    digitalWrite(in1n, LOW);
-    digitalWrite(in1p, HIGH);    
-  }
-
-  if(setpointM1 == 0){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, LOW);
-  }
-
   errorM1 = (setpointM1 - kecepatan1);
   integralM1 += errorM1;
   derivativeM1 = errorM1 - lastErrorM1;
@@ -160,24 +159,24 @@ void PIDM1() {
     outputM1 = 0;
   }
 
-  ledcWrite(ledChannel, outputM1);
+  if(conditionM1 == 1){
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, outputM1);
+
+  } else if(conditionM1 == 0) {
+    ledcWrite(ledChannel, outputM1);
+    ledcWrite(ledChannel1, 0);   
+  }
+
+  if(setpointM1 == 0){
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, 0); 
+  }
+
   lastErrorM1 = errorM1;
 }
 
 void PIDM2() {
-  if(conditionM2 == 1){
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, HIGH);
-  } else if(conditionM2 == 0) {
-    digitalWrite(in2n, LOW);
-    digitalWrite(in2p, HIGH);    
-  }
-
-  if(setpointM2 == 0){
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, LOW);
-  }
-
   errorM2 = (setpointM2 - kecepatan2);
   integralM2 += errorM2;
   derivativeM2 = errorM2 - lastErrorM2;
@@ -197,24 +196,23 @@ void PIDM2() {
     outputM2 = 0;
   }
 
-  ledcWrite(ledChannel1, outputM2);
+  if(conditionM2 == 1){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, outputM2);
+
+  } else if(conditionM2 == 0) {
+    ledcWrite(ledChannel2, outputM2);
+    ledcWrite(ledChannel3, 0);   
+  }
+
+  if(setpointM2 == 0){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, 0); 
+  }
   lastErrorM2 = errorM2;
 }
 
 void PIDM3() {
-  if(conditionM3 == 1){
-    digitalWrite(in3p, LOW);
-    digitalWrite(in3n, HIGH);
-  } else if(conditionM3 == 0) {
-    digitalWrite(in3n, LOW);
-    digitalWrite(in3p, HIGH);    
-  }
-
-  if(setpointM3 == 0){
-    digitalWrite(in3p, LOW);
-    digitalWrite(in3n, LOW);
-  }
-
   errorM3 = (setpointM3 - kecepatan3);
   integralM3 += errorM3;
   derivativeM3 = errorM3 - lastErrorM3;
@@ -234,7 +232,20 @@ void PIDM3() {
     outputM3 = 0;
   }
 
-  ledcWrite(ledChannel2, outputM3);
+  if(conditionM3 == 1){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, outputM3);
+
+  } else if(conditionM3 == 0) {
+    ledcWrite(ledChannel4, outputM3);
+    ledcWrite(ledChannel5, 0);   
+  }
+
+  if(setpointM3 == 0){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, 0); 
+  }
+  
   lastErrorM3 = errorM3;
 }
 
@@ -258,7 +269,7 @@ void setPWM1() {
     output1 = 0;
   }
 
-  ledcWrite(ledChannel, output1);
+  // ledcWrite(ledChannel, output1);
   lastError1 = error1;
 }
 
@@ -282,7 +293,7 @@ void setPWM2() {
     output2 = 0;
   }
 
-  ledcWrite(ledChannel1, output2);
+  // ledcWrite(ledChannel1, output2);
   lastError2 = error2;
 }
 
@@ -306,7 +317,7 @@ void setPWM3() {
     output3 = 0;
   }
 
-  ledcWrite(ledChannel2, output3);
+  // ledcWrite(ledChannel2, output3);
   lastError3 = error3;
 }
 
@@ -409,43 +420,6 @@ void startTimer() {
 }
 
 void setMotor(int condition1, int condition2, int condition3, float speed1, float speed2, float speed3) {
-  if(condition1 == 1){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, HIGH);
-  } else if(condition1 == 0) {
-    digitalWrite(in1n, LOW);
-    digitalWrite(in1p, HIGH);    
-  }
-
-  if(condition2 == 1){
-    digitalWrite(in2n, LOW);
-    digitalWrite(in2p, HIGH);
-  } else if(condition2 == 0) {
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, HIGH);
-  }
-
-  if(condition3 == 1){
-    digitalWrite(in3n, HIGH);
-    digitalWrite(in3p, LOW);
-  } else if(condition3 == 0) {
-    digitalWrite(in3p, HIGH);
-    digitalWrite(in3n, LOW);
-  }
-
-  if(speed1 == 0){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, LOW);
-  }
-  if(speed2 == 0){
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, LOW);
-  }
-  if(speed3 == 0){
-    digitalWrite(in3p, LOW);
-    digitalWrite(in3n, LOW);
-  }
-
   setpoint1 = speed1;
   setpoint2 = speed2;
   setpoint3 = speed3;
@@ -453,22 +427,52 @@ void setMotor(int condition1, int condition2, int condition3, float speed1, floa
   setPWM2();
   setPWM3();
   
-}
-
-void setMotor1() {
   if(condition1 == 1){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, HIGH);
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, output1);
+
   } else if(condition1 == 0) {
-    digitalWrite(in1n, LOW);
-    digitalWrite(in1p, HIGH);    
+    ledcWrite(ledChannel, output1);
+    ledcWrite(ledChannel1, 0);   
+  }
+
+  if(condition2 == 1){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, output2);
+
+  } else if(condition2 == 0) {
+    ledcWrite(ledChannel2, output2);
+    ledcWrite(ledChannel3, 0);   
+  }
+
+  if(condition3 == 1){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, output3);
+
+  } else if(condition3 == 0) {
+    ledcWrite(ledChannel4, output3);
+    ledcWrite(ledChannel5, 0);   
   }
 
   if(speed1 == 0){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, LOW);
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, 0); 
   }
 
+  if(speed2 == 0){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, 0); 
+  }
+
+  if(speed3 == 0){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, 0); 
+  }
+
+    
+}
+
+void setMotor1() {
   if(flag_timer_motor1 == 1){
     unsigned long waktu_init_motor1 = millis();
     if(waktu_init_motor1 - waktu_motor1_sebelumnya <= timer_motor1){
@@ -483,22 +487,25 @@ void setMotor1() {
     setpoint1 = speed1;
     setPWM1();
   }
+  
+  if(condition1 == 1){
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, output1);
+
+  } else if(condition1 == 0) {
+    ledcWrite(ledChannel, output1);
+    ledcWrite(ledChannel1, 0);   
+  }
+
+  if(speed1 == 0){
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, 0); 
+  }
+
+  
 }
 
 void setMotor2() {
-  if(condition2 == 1){
-    digitalWrite(in2n, LOW);
-    digitalWrite(in2p, HIGH);
-  } else if(condition2 == 0) {
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, HIGH);
-  }
-
-  if(speed2 == 0){
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, LOW);
-  }
-
   if(flag_timer_motor2 == 1){
     unsigned long waktu_init_motor2 = millis();
     if(waktu_init_motor2 - waktu_motor2_sebelumnya <= timer_motor2){
@@ -513,23 +520,24 @@ void setMotor2() {
     setpoint2 = speed2;
     setPWM2();
   }
+
+  if(condition2 == 1){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, output2);
+
+  } else if(condition2 == 0) {
+    ledcWrite(ledChannel2, output2);
+    ledcWrite(ledChannel3, 0);   
+  }
+  
+  if(speed2 == 0){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, 0); 
+  }
   
 }
 
 void setMotor3() {
-  if(condition3 == 1){
-    digitalWrite(in3n, HIGH);
-    digitalWrite(in3p, LOW);
-  } else if(condition3 == 0) {
-    digitalWrite(in3p, HIGH);
-    digitalWrite(in3n, LOW);
-  }
-
-  if(speed3 == 0){
-    digitalWrite(in3p, LOW);
-    digitalWrite(in3n, LOW);
-  }
-
   if(flag_timer_motor3 == 1){
     unsigned long waktu_init_motor3 = millis();
     if(waktu_init_motor3 - waktu_motor3_sebelumnya <= timer_motor3){
@@ -544,22 +552,24 @@ void setMotor3() {
     setpoint3 = speed3;
     setPWM3();
   }
+
+  if(condition3 == 1){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, output3);
+
+  } else if(condition3 == 0) {
+    ledcWrite(ledChannel4, output3);
+    ledcWrite(ledChannel5, 0);   
+  }
+
+  if(speed3 == 0){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, 0); 
+  }
   
 }
 
 void setMotor1_jarak() {
-  if(condition1 == 1){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, HIGH);
-  } else if(condition1 == 0) {
-    digitalWrite(in1n, LOW);
-    digitalWrite(in1p, HIGH);    
-  }
-
-  if(speed1 == 0){
-    digitalWrite(in1p, LOW);
-    digitalWrite(in1n, LOW);
-  }
   // Serial.print("MOTOR1");
   if(abs(encoder_value1_jarak) < jarak_motor1){
     setpoint1 = speed1;
@@ -573,21 +583,23 @@ void setMotor1_jarak() {
     // Serial.print("\t");
     // Serial.print("Stop Motor 1");
   }
+
+  if(condition1 == 1){
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, output1);
+
+  } else if(condition1 == 0) {
+    ledcWrite(ledChannel, output1);
+    ledcWrite(ledChannel1, 0);   
+  }
+
+  if(speed1 == 0){
+    ledcWrite(ledChannel, 0);
+    ledcWrite(ledChannel1, 0); 
+  }
 }
 
 void setMotor2_jarak() {
-  if(condition2 == 1){
-    digitalWrite(in2n, LOW);
-    digitalWrite(in2p, HIGH);
-  } else if(condition2 == 0) {
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, HIGH);
-  }
-
-  if(speed2 == 0){
-    digitalWrite(in2p, LOW);
-    digitalWrite(in2n, LOW);
-  }
   // Serial.print("\t");
   // Serial.print("MOTOR2");
   if(abs(encoder_value2_jarak) < jarak_motor2){
@@ -602,21 +614,23 @@ void setMotor2_jarak() {
     // Serial.print("\t");
     // Serial.print("Stop Motor 2");
   }
+
+  if(condition2 == 1){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, output2);
+
+  } else if(condition2 == 0) {
+    ledcWrite(ledChannel2, output2);
+    ledcWrite(ledChannel3, 0);   
+  }
+  
+  if(speed2 == 0){
+    ledcWrite(ledChannel2, 0);
+    ledcWrite(ledChannel3, 0); 
+  }
   
 }
 void setMotor3_jarak() {
-  if(condition3 == 1){
-    digitalWrite(in3n, HIGH);
-    digitalWrite(in3p, LOW);
-  } else if(condition3 == 0) {
-    digitalWrite(in3p, HIGH);
-    digitalWrite(in3n, LOW);
-  }
-
-  if(speed3 == 0){
-    digitalWrite(in3p, LOW);
-    digitalWrite(in3n, LOW);
-  }
   // Serial.print("\t");
   // Serial.print("MOTOR3");
   if(abs(encoder_value3_jarak) < jarak_motor3){
@@ -630,6 +644,20 @@ void setMotor3_jarak() {
     setPWM3();
     // Serial.print("\t");
     // Serial.println("Stop Motor 3");
+  }
+
+  if(condition3 == 1){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, output3);
+
+  } else if(condition3 == 0) {
+    ledcWrite(ledChannel4, output3);
+    ledcWrite(ledChannel5, 0);   
+  }
+
+  if(speed3 == 0){
+    ledcWrite(ledChannel4, 0);
+    ledcWrite(ledChannel5, 0); 
   }
   
 }
@@ -808,23 +836,6 @@ void menampilkan_data_serial(){
 
 void setup() {
 
-  Wire.begin();
-  BNO_Init(&myBNO); 
-  bno055_set_operation_mode(OPERATION_MODE_NDOF);
-  delay(1);
-
-  pinMode(en1, OUTPUT);
-  pinMode(in1p, OUTPUT);
-  pinMode(in1n, OUTPUT);
-
-  pinMode(en2, OUTPUT);
-  pinMode(in2p, OUTPUT);
-  pinMode(in2n, OUTPUT);
-
-  pinMode(en3, OUTPUT);
-  pinMode(in3p, OUTPUT);
-  pinMode(in3n, OUTPUT);
-
   pinMode(enc1A, INPUT_PULLUP);
   pinMode(enc1B, INPUT_PULLUP);
   pinMode(enc2A, INPUT_PULLUP);
@@ -832,26 +843,37 @@ void setup() {
   pinMode(enc3A, INPUT_PULLUP);
   pinMode(enc3B, INPUT_PULLUP);
 
-  digitalWrite(in1p, LOW);
-  digitalWrite(in1n, LOW);
-  digitalWrite(in2n, LOW);
-  digitalWrite(in2p, LOW);
-  digitalWrite(in3n, LOW);
-  digitalWrite(in3p, LOW);
-
   attachInterrupt(digitalPinToInterrupt(enc1A), encoder_isr1, CHANGE);
   attachInterrupt(digitalPinToInterrupt(enc2A), encoder_isr2, CHANGE);
   attachInterrupt(digitalPinToInterrupt(enc3A), encoder_isr3, CHANGE);
   Serial.begin(115200);
 
   ledcSetup(ledChannel, freq, resolution);
-  ledcAttachPin(en1, ledChannel);
+  ledcAttachPin(en1A, ledChannel);
 
   ledcSetup(ledChannel1, freq, resolution);
-  ledcAttachPin(en2, ledChannel1);
+  ledcAttachPin(en1B, ledChannel1);
 
   ledcSetup(ledChannel2, freq, resolution);
-  ledcAttachPin(en3, ledChannel2);
+  ledcAttachPin(en2A, ledChannel2);
+
+  ledcSetup(ledChannel3, freq, resolution);
+  ledcAttachPin(en2B, ledChannel3);
+
+  ledcSetup(ledChannel4, freq, resolution);
+  ledcAttachPin(en3A, ledChannel4);
+
+  ledcSetup(ledChannel5, freq, resolution);
+  ledcAttachPin(en3B, ledChannel5);
+
+  ledcWrite(ledChannel, 0);
+  ledcWrite(ledChannel1, 0);
+
+  ledcWrite(ledChannel2, 0);
+  ledcWrite(ledChannel3, 0);
+
+  ledcWrite(ledChannel4, 0);
+  ledcWrite(ledChannel5, 0);
 
   WiFi.mode(WIFI_STA);
 
@@ -932,5 +954,4 @@ void loop() {
     setMotor2_jarak();
     setMotor3_jarak();
   }
-
 } 
