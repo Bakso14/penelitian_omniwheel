@@ -33,20 +33,20 @@ char serialBuffer[BUFFER_SIZE];
 // int enc2A = 32;
 // int enc2B = 33;
 
-int en2A = 18;
-int en2B = 4;
-int enc2A = 35;
-int enc2B = 34;
+int en1A = 4;
+int en1B = 18;
+int enc1A = 5;
+int enc1B = 15;
 
-int en1A = 2;
-int en1B = 13;
-int enc1A = 32;
-int enc1B = 33;
+int en2A = 13;
+int en2B = 2;
+int enc2A = 33;
+int enc2B = 32;
 
-int en3A = 14;
-int en3B = 27;
-int enc3A = 25;
-int enc3B = 26;
+int en3A = 27;
+int en3B = 14;
+int enc3A = 26;
+int enc3B = 25;
 
 
 volatile int encoder_value1 = 0; 
@@ -355,6 +355,8 @@ typedef struct motor {
 
 motor motor_keseluruhan;
 
+motor command;
+
 typedef struct motor_sinkron {
     int function_code;
     int dir1;
@@ -487,22 +489,21 @@ void setMotor1() {
     setpoint1 = speed1;
     setPWM1();
   }
-  
-  if(condition1 == 1){
-    ledcWrite(ledChannel, 0);
-    ledcWrite(ledChannel1, output1);
-
-  } else if(condition1 == 0) {
-    ledcWrite(ledChannel, output1);
-    ledcWrite(ledChannel1, 0);   
-  }
 
   if(speed1 == 0){
     ledcWrite(ledChannel, 0);
     ledcWrite(ledChannel1, 0); 
-  }
-
+  }else{
+    if(condition1 == 1){
+      ledcWrite(ledChannel, 0);
+      ledcWrite(ledChannel1, output1);
   
+    } else if(condition1 == 0) {
+      ledcWrite(ledChannel, output1);
+      ledcWrite(ledChannel1, 0);   
+    }  
+  }
+    
 }
 
 void setMotor2() {
@@ -521,20 +522,20 @@ void setMotor2() {
     setPWM2();
   }
 
-  if(condition2 == 1){
-    ledcWrite(ledChannel2, 0);
-    ledcWrite(ledChannel3, output2);
-
-  } else if(condition2 == 0) {
-    ledcWrite(ledChannel2, output2);
-    ledcWrite(ledChannel3, 0);   
-  }
-  
   if(speed2 == 0){
     ledcWrite(ledChannel2, 0);
     ledcWrite(ledChannel3, 0); 
-  }
+  }else{
+    if(condition2 == 1){
+      ledcWrite(ledChannel2, 0);
+      ledcWrite(ledChannel3, output2);
   
+    } else if(condition2 == 0) {
+      ledcWrite(ledChannel2, output2);
+      ledcWrite(ledChannel3, 0);   
+    }
+  }
+
 }
 
 void setMotor3() {
@@ -553,20 +554,20 @@ void setMotor3() {
     setPWM3();
   }
 
-  if(condition3 == 1){
-    ledcWrite(ledChannel4, 0);
-    ledcWrite(ledChannel5, output3);
-
-  } else if(condition3 == 0) {
-    ledcWrite(ledChannel4, output3);
-    ledcWrite(ledChannel5, 0);   
-  }
-
   if(speed3 == 0){
     ledcWrite(ledChannel4, 0);
     ledcWrite(ledChannel5, 0); 
-  }
+  }else{
+    if(condition3 == 1){
+      ledcWrite(ledChannel4, 0);
+      ledcWrite(ledChannel5, output3);
   
+    } else if(condition3 == 0) {
+      ledcWrite(ledChannel4, output3);
+      ledcWrite(ledChannel5, 0);   
+    }
+  }
+ 
 }
 
 void setMotor1_jarak() {
@@ -584,18 +585,18 @@ void setMotor1_jarak() {
     // Serial.print("Stop Motor 1");
   }
 
-  if(condition1 == 1){
-    ledcWrite(ledChannel, 0);
-    ledcWrite(ledChannel1, output1);
-
-  } else if(condition1 == 0) {
-    ledcWrite(ledChannel, output1);
-    ledcWrite(ledChannel1, 0);   
-  }
-
   if(speed1 == 0){
     ledcWrite(ledChannel, 0);
     ledcWrite(ledChannel1, 0); 
+  }else{
+    if(condition1 == 1){
+      ledcWrite(ledChannel, 0);
+      ledcWrite(ledChannel1, output1);
+  
+    } else if(condition1 == 0) {
+      ledcWrite(ledChannel, output1);
+      ledcWrite(ledChannel1, 0);   
+    }  
   }
 }
 
@@ -615,19 +616,20 @@ void setMotor2_jarak() {
     // Serial.print("Stop Motor 2");
   }
 
-  if(condition2 == 1){
-    ledcWrite(ledChannel2, 0);
-    ledcWrite(ledChannel3, output2);
-
-  } else if(condition2 == 0) {
-    ledcWrite(ledChannel2, output2);
-    ledcWrite(ledChannel3, 0);   
-  }
-  
   if(speed2 == 0){
     ledcWrite(ledChannel2, 0);
     ledcWrite(ledChannel3, 0); 
+  }else{
+    if(condition2 == 1){
+      ledcWrite(ledChannel2, 0);
+      ledcWrite(ledChannel3, output2);
+  
+    } else if(condition2 == 0) {
+      ledcWrite(ledChannel2, output2);
+      ledcWrite(ledChannel3, 0);   
+    }
   }
+
   
 }
 void setMotor3_jarak() {
@@ -646,18 +648,18 @@ void setMotor3_jarak() {
     // Serial.println("Stop Motor 3");
   }
 
-  if(condition3 == 1){
-    ledcWrite(ledChannel4, 0);
-    ledcWrite(ledChannel5, output3);
-
-  } else if(condition3 == 0) {
-    ledcWrite(ledChannel4, output3);
-    ledcWrite(ledChannel5, 0);   
-  }
-
   if(speed3 == 0){
     ledcWrite(ledChannel4, 0);
     ledcWrite(ledChannel5, 0); 
+  }else{
+    if(condition3 == 1){
+      ledcWrite(ledChannel4, 0);
+      ledcWrite(ledChannel5, output3);
+  
+    } else if(condition3 == 0) {
+      ledcWrite(ledChannel4, output3);
+      ledcWrite(ledChannel5, 0);   
+    }
   }
   
 }
@@ -798,10 +800,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   
   case 4:
     memcpy(&sinkron_motor, incomingData, sizeof(sinkron_motor));
-    encoder_value1_jarak = 0;
-    encoder_value2_jarak = 0;
-    encoder_value3_jarak = 0;
-
     flag_kecepatan = 2;
     
     condition1 = sinkron_motor.dir1;
@@ -818,7 +816,17 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 
     break;
 
+  case 5:
+    memcpy(&command, incomingData, sizeof(command));
+    if(command.dir1 == 78){
+      encoder_value1_jarak = 0;
+      encoder_value2_jarak = 0;
+      encoder_value3_jarak = 0;
+    }
 
+
+    break;
+    
   }
   
 }

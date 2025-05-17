@@ -84,6 +84,8 @@ typedef struct motor {
 
 motor motor_keseluruhan;
 
+motor command;
+
 typedef struct motor_sinkron {
     int function_code;
     int dir1;
@@ -173,7 +175,18 @@ void Split(char* e) {
     sinkron_motor.timer2 = atol(v[8]);
     sinkron_motor.timer3 = atol(v[9]);
     esp_now_send(broadcastAddress, (uint8_t *) &sinkron_motor, sizeof(sinkron_motor));
+
+  }else if(atoi(v[0]) == 5){
+    command.function_code = atoi(v[0]);
+    command.dir1 = atoi(v[1]);
+    command.dir2 = atoi(v[2]);
+    command.dir3 = atoi(v[3]);
+    command.speed1 = atof(v[4]);
+    command.speed2 = atof(v[5]);
+    command.speed3 = atof(v[6]);
+    esp_now_send(broadcastAddress, (uint8_t *) &command, sizeof(command));
   }
+  
 
 };
 
