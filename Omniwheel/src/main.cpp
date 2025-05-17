@@ -842,6 +842,33 @@ void menampilkan_data_serial(){
   Serial.println("\t");
 }
 
+TaskHandle_t Task1;
+
+void Task1code( void * pvParameters ){
+  
+  while(1){
+    unsigned long waktu_display = millis();
+    if(waktu_display - waktu_display_sebelumnya >= 200){
+      waktu_display_sebelumnya = waktu_display;
+
+      Serial.print("Task1 running on core ");
+      Serial.println(xPortGetCoreID());
+
+      current_velocity.S1 = encoder_value1_jarak;
+      current_velocity.S2 = encoder_value2_jarak;
+      current_velocity.S3 = encoder_value3_jarak;
+      
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
+      if (result != ESP_OK) {
+        Serial.println("Error sending the data");
+      }
+
+      menampilkan_data_serial();
+    } 
+  }
+  
+}
+
 void setup() {
 
   pinMode(enc1A, INPUT_PULLUP);
@@ -901,8 +928,20 @@ void setup() {
     return;
   }
 
+  xTaskCreatePinnedToCore(
+    Task1code,   /* Task function. */
+    "Task1",     /* name of task. */
+    10000,       /* Stack size of task */
+    NULL,        /* parameter of the task */
+    1,           /* priority of the task */
+    &Task1,      /* Task handle to keep track of created task */
+    0);          /* pin task to core 0 */    
+
+  delay(500); 
+
 
 }
+
 
 
 void loop() {
@@ -931,22 +970,7 @@ void loop() {
     current_velocity.theta = float(myEulerData.h) / 16.00;
   }
 
-  unsigned long waktu_display = millis();
-  if(waktu_display - waktu_display_sebelumnya >= 200){
-    waktu_display_sebelumnya = waktu_display;
-
-    current_velocity.S1 = encoder_value1_jarak;
-    current_velocity.S2 = encoder_value2_jarak;
-    current_velocity.S3 = encoder_value3_jarak;
-    
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
-    if (result != ESP_OK) {
-      Serial.println("Error sending the data");
-    }
-
-    // menampilkan_data_serial();
-  }
-
+  
   if(flag_kecepatan == 1){
     setMotor1();
     setMotor2();
