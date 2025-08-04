@@ -7,6 +7,15 @@
 
 //https://youtu.be/rUbmW4qAh8w?si=d8ImdF8glph8iRu_
 
+String inputString;
+double linear_x = 0;
+double linear_y = 0;
+double linear_z = 0;
+
+double angular_x = 0;
+double angular_y = 0;
+double angular_z = 0;
+
 struct bno055_t myBNO;
 struct bno055_euler myEulerData;
 
@@ -842,6 +851,28 @@ void menampilkan_data_serial(){
   Serial.println("\t");
 }
 
+void Split_cmd_vel(char* e) {
+  int jumlah_data = 6;
+  char* v[jumlah_data];
+  char *p;
+  int i = 0;
+  p = strtok(e, ",");
+  while (p && i < jumlah_data) {
+    v[i] = p;
+    p = strtok(NULL, ",");
+    i++;
+  };
+
+  linear_x = atof(v[0]);
+  linear_y = atof(v[1]);
+  linear_z = atof(v[2]);
+
+  angular_x = atof(v[3]);
+  angular_y = atof(v[4]);
+  angular_z = atof(v[5]);
+
+}
+
 void setup() {
 
   pinMode(enc1A, INPUT_PULLUP);
@@ -932,7 +963,7 @@ void loop() {
   }
 
   unsigned long waktu_display = millis();
-  if(waktu_display - waktu_display_sebelumnya >= 200){
+  if(waktu_display - waktu_display_sebelumnya >= 200 && flag_kecepatan != 3){
     waktu_display_sebelumnya = waktu_display;
 
     current_velocity.S1 = encoder_value1_jarak;
@@ -945,6 +976,14 @@ void loop() {
     }
 
     // menampilkan_data_serial();
+  }
+
+  if(Serial.available() >0){
+    flag_kecepatan = 3;
+    inputString = Serial.readStringUntil('\n'); 
+    char inputCharArray[inputString.length() + 1]; 
+    inputString.toCharArray(inputCharArray, inputString.length() + 1); 
+    Split_cmd_vel(inputCharArray);
   }
 
   if(flag_kecepatan == 1){
@@ -961,5 +1000,21 @@ void loop() {
     setMotor1_jarak();
     setMotor2_jarak();
     setMotor3_jarak();
+  
+  }else if (flag_kecepatan == 3)
+  {
+    Serial.print("Linear X: ");
+    Serial.print(linear_x);
+    Serial.print(" | Linear Y: ");
+    Serial.print(linear_y);
+    Serial.print(" | Linear Z: ");
+    Serial.print(linear_z);
+    Serial.print(" | Angular X: ");
+    Serial.print(angular_x);
+    Serial.print(" | Angular Y: ");
+    Serial.print(angular_y);
+    Serial.print(" | Angular Z: ");
+    Serial.println(angular_z);
   }
+  
 } 
