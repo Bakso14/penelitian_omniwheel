@@ -1012,6 +1012,7 @@ void loop() {
     inputString.toCharArray(inputCharArray, inputString.length() + 1); 
     Split_cmd_vel(inputCharArray);
 
+    //Inverse Kinematics
     V3 = matrix_kecepatan[0] * linear_x + matrix_kecepatan[1] * linear_y + matrix_kecepatan[2] * angular_z;
     V2 = matrix_kecepatan[3] * linear_x + matrix_kecepatan[4] * linear_y + matrix_kecepatan[5] * angular_z;
     V1 = matrix_kecepatan[6] * linear_x + matrix_kecepatan[7] * linear_y + matrix_kecepatan[8] * angular_z;
@@ -1044,7 +1045,6 @@ void loop() {
     flag_timer_motor2 = 0;
     flag_timer_motor3 = 0;
 
-
   }
 
   if(flag_kecepatan == 1){
@@ -1062,8 +1062,7 @@ void loop() {
     setMotor2_jarak();
     setMotor3_jarak();
   
-  }else if (flag_kecepatan == 3)
-  {
+  }else if (flag_kecepatan == 3){
     setMotor1();
     setMotor2();
     setMotor3();
