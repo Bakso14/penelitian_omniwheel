@@ -970,7 +970,7 @@ void loop() {
   }
 
   unsigned long waktu_display = millis();
-  if(waktu_display - waktu_display_sebelumnya >= 200 && flag_kecepatan != 3){
+  if(waktu_display - waktu_display_sebelumnya >= 200){
     waktu_display_sebelumnya = waktu_display;
 
     if(flag_kecepatan != 3){
