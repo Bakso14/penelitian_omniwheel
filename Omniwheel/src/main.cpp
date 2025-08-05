@@ -7,6 +7,10 @@
 
 //https://youtu.be/rUbmW4qAh8w?si=d8ImdF8glph8iRu_
 
+//inverse kinematics
+double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
+double V1, V2, V3;
+
 String inputString;
 double linear_x = 0;
 double linear_y = 0;
@@ -984,6 +988,11 @@ void loop() {
     char inputCharArray[inputString.length() + 1]; 
     inputString.toCharArray(inputCharArray, inputString.length() + 1); 
     Split_cmd_vel(inputCharArray);
+
+    V3 = matrix_kecepatan[0] * linear_x + matrix_kecepatan[1] * linear_y + matrix_kecepatan[2] * angular_z;
+    V2 = matrix_kecepatan[3] * linear_x + matrix_kecepatan[4] * linear_y + matrix_kecepatan[5] * angular_z;
+    V1 = matrix_kecepatan[6] * linear_x + matrix_kecepatan[7] * linear_y + matrix_kecepatan[8] * angular_z;
+
   }
 
   if(flag_kecepatan == 1){
@@ -1003,6 +1012,7 @@ void loop() {
   
   }else if (flag_kecepatan == 3)
   {
+    
     Serial.print("Linear X: ");
     Serial.print(linear_x);
     Serial.print(" | Linear Y: ");
