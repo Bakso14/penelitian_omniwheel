@@ -10,6 +10,9 @@
 //inverse kinematics
 double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
 double V1, V2, V3;
+int arah_motor1 = 0;
+int arah_motor2 = 0;
+int arah_motor3 = 0;
 
 String inputString;
 double linear_x = 0;
@@ -992,6 +995,35 @@ void loop() {
     V3 = matrix_kecepatan[0] * linear_x + matrix_kecepatan[1] * linear_y + matrix_kecepatan[2] * angular_z;
     V2 = matrix_kecepatan[3] * linear_x + matrix_kecepatan[4] * linear_y + matrix_kecepatan[5] * angular_z;
     V1 = matrix_kecepatan[6] * linear_x + matrix_kecepatan[7] * linear_y + matrix_kecepatan[8] * angular_z;
+    
+    arah_motor1 = 1;
+    arah_motor2 = 1;
+    arah_motor3 = 1;
+    
+    if (V1 < 0){
+        arah_motor1 = 0;
+    }
+
+    if (V2 < 0){
+        arah_motor2 = 0;
+    }
+
+    if (V3 < 0){
+        arah_motor3 = 0;
+    }
+
+    condition1 = arah_motor1;
+    condition2 = arah_motor2;
+    condition3 = arah_motor3;
+
+    speed1 = abs(V1);
+    speed2 = abs(V2);
+    speed3 = abs(V3);
+
+    flag_timer_motor1 = 0;
+    flag_timer_motor2 = 0;
+    flag_timer_motor3 = 0;
+
 
   }
 
@@ -1012,7 +1044,10 @@ void loop() {
   
   }else if (flag_kecepatan == 3)
   {
-    
+    setMotor1();
+    setMotor2();
+    setMotor3();
+
     Serial.print("Linear X: ");
     Serial.print(linear_x);
     Serial.print(" | Linear Y: ");
@@ -1025,6 +1060,7 @@ void loop() {
     Serial.print(angular_y);
     Serial.print(" | Angular Z: ");
     Serial.println(angular_z);
+    
   }
   
 } 
