@@ -973,14 +973,34 @@ void loop() {
   if(waktu_display - waktu_display_sebelumnya >= 200 && flag_kecepatan != 3){
     waktu_display_sebelumnya = waktu_display;
 
-    current_velocity.S1 = encoder_value1_jarak;
-    current_velocity.S2 = encoder_value2_jarak;
-    current_velocity.S3 = encoder_value3_jarak;
+    if(flag_kecepatan != 3){
+      
+      current_velocity.S1 = encoder_value1_jarak;
+      current_velocity.S2 = encoder_value2_jarak;
+      current_velocity.S3 = encoder_value3_jarak;
+      
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
+      if (result != ESP_OK) {
+        Serial.println("Error sending the data");
+      }
     
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
-    if (result != ESP_OK) {
-      Serial.println("Error sending the data");
+    }else{
+
+      Serial.print("Linear X: ");
+      Serial.print(linear_x);
+      Serial.print(" | Y: ");
+      Serial.print(linear_y);
+      Serial.print(" | Z: ");
+      Serial.print(linear_z);
+      Serial.print(" | Angular X: ");
+      Serial.print(angular_x);
+      Serial.print(" | Y: ");
+      Serial.print(angular_y);
+      Serial.print(" | Z: ");
+      Serial.println(angular_z);
+      
     }
+    
 
     // menampilkan_data_serial();
   }
@@ -1047,19 +1067,6 @@ void loop() {
     setMotor1();
     setMotor2();
     setMotor3();
-
-    Serial.print("Linear X: ");
-    Serial.print(linear_x);
-    Serial.print(" | Linear Y: ");
-    Serial.print(linear_y);
-    Serial.print(" | Linear Z: ");
-    Serial.print(linear_z);
-    Serial.print(" | Angular X: ");
-    Serial.print(angular_x);
-    Serial.print(" | Angular Y: ");
-    Serial.print(angular_y);
-    Serial.print(" | Angular Z: ");
-    Serial.println(angular_z);
     
   }
   
