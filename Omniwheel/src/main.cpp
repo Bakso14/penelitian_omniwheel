@@ -9,7 +9,7 @@
 
 //inverse kinematics
 double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
-double V1, V2, V3;
+double V1, V2, V3, Vmax, Speed_max;
 int arah_motor1 = 0;
 int arah_motor2 = 0;
 int arah_motor3 = 0;
@@ -986,19 +986,13 @@ void loop() {
     
     }else{
 
-      Serial.print("Linear X: ");
-      Serial.print(linear_x);
-      Serial.print(" | Y: ");
-      Serial.print(linear_y);
-      Serial.print(" | Z: ");
-      Serial.print(linear_z);
-      Serial.print(" | Angular X: ");
-      Serial.print(angular_x);
-      Serial.print(" | Y: ");
-      Serial.print(angular_y);
-      Serial.print(" | Z: ");
-      Serial.println(angular_z);
-      
+      Serial.print(" V1: ");
+      Serial.print(kecepatan1);
+      Serial.print(" | V2: ");
+      Serial.print(kecepatan2);
+      Serial.print(" | V3: ");
+      Serial.println(kecepatan3);
+
     }
     
 
@@ -1011,6 +1005,8 @@ void loop() {
     char inputCharArray[inputString.length() + 1]; 
     inputString.toCharArray(inputCharArray, inputString.length() + 1); 
     Split_cmd_vel(inputCharArray);
+
+    Vmax = 25;
 
     //Inverse Kinematics
     V3 = matrix_kecepatan[0] * linear_x + matrix_kecepatan[1] * linear_y + matrix_kecepatan[2] * angular_z;
@@ -1041,6 +1037,18 @@ void loop() {
     speed2 = abs(V2);
     speed3 = abs(V3);
 
+    Speed_max = max(speed1, max(speed2, speed3));
+    if(Speed_max > 0){
+      speed1 = (speed1 / Speed_max) * Vmax;
+      speed2 = (speed2 / Speed_max) * Vmax;
+      speed3 = (speed3 / Speed_max) * Vmax;
+
+    }else{
+      speed1 = 0;
+      speed2 = 0;
+      speed3 = 0;
+    }
+    
     flag_timer_motor1 = 0;
     flag_timer_motor2 = 0;
     flag_timer_motor3 = 0;
