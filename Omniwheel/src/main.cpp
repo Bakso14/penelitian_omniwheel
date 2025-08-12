@@ -986,13 +986,17 @@ void loop() {
     
     }else{
 
-      Serial.print(" V1: ");
+      Serial.print(linear_x);
+      Serial.print(",");
+      Serial.print(linear_y);
+      Serial.print(",");
+      Serial.print(angular_z);
+      Serial.print(",");
       Serial.print(kecepatan1);
-      Serial.print(" | V2: ");
+      Serial.print(",");
       Serial.print(kecepatan2);
-      Serial.print(" | V3: ");
+      Serial.print(",");
       Serial.println(kecepatan3);
-
     }
     
 
