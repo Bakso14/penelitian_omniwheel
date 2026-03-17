@@ -217,7 +217,7 @@ void loop() {
     inputString.toCharArray(inputCharArray, inputString.length() + 1); // Convert string to char array
     Split(inputCharArray); // Pass the char array to Split function
 
-    delay(1000);
+    // delay(1000);
     //Serial.println(inputString);
   }
   

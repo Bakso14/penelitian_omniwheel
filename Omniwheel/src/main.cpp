@@ -926,11 +926,11 @@ void loop() {
 
   }
 
-  if ((millis() - lastTime) >= 100){
-    lastTime = millis();
-    bno055_read_euler_hrp(&myEulerData);
-    current_velocity.theta = float(myEulerData.h) / 16.00;
-  }
+  // if ((millis() - lastTime) >= 100){
+  //   lastTime = millis();
+  //   bno055_read_euler_hrp(&myEulerData);
+  //   current_velocity.theta = float(myEulerData.h) / 16.00;
+  // }
 
   unsigned long waktu_display = millis();
   if(waktu_display - waktu_display_sebelumnya >= 200){
