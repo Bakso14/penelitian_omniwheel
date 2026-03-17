@@ -393,7 +393,8 @@ bool flag_timer_motor3=0;
 int flag_kecepatan = 1;
 
 //Transmitter
-uint8_t broadcastAddress[] = {0x08, 0xB6, 0x1F, 0x71, 0xBB, 0xEC};
+uint8_t broadcastAddress[] = {0xCC, 0x8D, 0xA2, 0x0D, 0x40, 0xE4};
+//uint8_t broadcastAddress[] = {0x08, 0xB6, 0x1F, 0x71, 0xBB, 0xEC};
 //08:B6:1F:71:BB:EC
 typedef struct data_kecepatan {
   float v1;
