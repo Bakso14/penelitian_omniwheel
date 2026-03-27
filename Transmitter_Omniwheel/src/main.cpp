@@ -192,6 +192,7 @@ void Split(char* e) {
 
 void setup() {
   Serial.begin(115200);
+  Serial.setTimeout(10); // dari 1000 ms → 10 ms
   WiFi.mode(WIFI_STA);
   if (esp_now_init() != 0) {
     return;
