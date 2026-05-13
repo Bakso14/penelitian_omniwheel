@@ -18,6 +18,7 @@ const int pulsa_per_putaran = 1640;
 const float jar_jari_roda = 2.9;
 const float keliling_roda = 2 * PI * jar_jari_roda;
 const float cm_per_pulsa = keliling_roda / pulsa_per_putaran;
+const float phi=3.141592653;
 
 bool firstloop = true;
 const int BUFFER_SIZE = 50;
@@ -936,9 +937,9 @@ void loop() {
   if(waktu_display - waktu_display_sebelumnya >= 200){
     waktu_display_sebelumnya = waktu_display;
 
-    current_velocity.S1 = encoder_value1_jarak;
-    current_velocity.S2 = encoder_value2_jarak;
-    current_velocity.S3 = encoder_value3_jarak;
+    current_velocity.S1 = encoder_value1_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
+    current_velocity.S2 = encoder_value2_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
+    current_velocity.S3 = encoder_value3_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
     
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
     if (result != ESP_OK) {
