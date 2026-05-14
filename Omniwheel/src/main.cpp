@@ -21,6 +21,15 @@ const float cm_per_pulsa = keliling_roda / pulsa_per_putaran;
 const float phi=3.141592653;
 
 double matrix_kecepatan[9] = { -0.5, -0.5, 1, 0.866, -0.866, 0, 10.5158, 10.5158, 10.5158 };
+double matrix_kecepatan_inverse[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
+
+float jarak_dua_titik;
+float delta_x;
+float delta_y;
+double V1, V2, V3, x_linier, y_linier, omega, Vmax, Speed_max;
+int arah_motor1 = 0;
+int arah_motor2 = 0;
+int arah_motor3 = 0;
 
 bool firstloop = true;
 const int BUFFER_SIZE = 50;
@@ -376,6 +385,15 @@ typedef struct motor_sinkron {
 } motor_sinkron;
 
 motor_sinkron sinkron_motor;
+
+typedef struct perintah_posisi {
+    int function_code;
+    float posisi_x;
+    float posisi_y;
+    float posisi_theta;
+} perintah_posisi;
+
+perintah_posisi perintah_posisi_masuk;
 
 
 struct_message_pid dummy;
@@ -829,10 +847,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
       encoder_value2_jarak = 0;
       encoder_value3_jarak = 0;
     }
-
-
     break;
-    
+  
+  case 6:
+    memcpy(&perintah_posisi_masuk, incomingData, sizeof(perintah_posisi_masuk));
+    flag_kecepatan = 3;
+    break;
+
   }
   
 }
@@ -929,14 +950,14 @@ void loop() {
     // current_velocity.v3 = kecepatan3;
     encoder_value3 = 0;
 
-    V3 = matrix_kecepatan[0] * kecepatan1 + matrix_kecepatan[1] * kecepatan2 + matrix_kecepatan[2] * kecepatan3;
-    V2 = matrix_kecepatan[3] * kecepatan1 + matrix_kecepatan[4] * kecepatan2 + matrix_kecepatan[5] * kecepatan3;
-    V1 = matrix_kecepatan[6] * kecepatan1 + matrix_kecepatan[7] * kecepatan2 + matrix_kecepatan[8] * kecepatan3;
+    x_linier = matrix_kecepatan[0] * kecepatan1 + matrix_kecepatan[1] * kecepatan2 + matrix_kecepatan[2] * kecepatan3;
+    y_linier = matrix_kecepatan[3] * kecepatan1 + matrix_kecepatan[4] * kecepatan2 + matrix_kecepatan[5] * kecepatan3;
+    omega = matrix_kecepatan[6] * kecepatan1 + matrix_kecepatan[7] * kecepatan2 + matrix_kecepatan[8] * kecepatan3;
     
     //Xlinear, Ylinear, Omega
-    current_velocity.v1 = V3;
-    current_velocity.v2 = V2;
-    current_velocity.v3 = V1;
+    current_velocity.v1 = x_linier;
+    current_velocity.v2 = y_linier;
+    current_velocity.v3 = omega;
 
   }
 
@@ -985,5 +1006,68 @@ void loop() {
     setMotor1_jarak();
     setMotor2_jarak();
     setMotor3_jarak();
+  }else if(flag_kecepatan == 3){
+    delta_x = perintah_posisi_masuk.posisi_x-koordinat_x;
+    delta_y = perintah_posisi_masuk.posisi_y-koordinat_y;
+    jarak_dua_titik = sqrt(delta_x*delta_x + delta_y*delta_y);
+    
+    if(jarak_dua_titik > 2){
+      Vmax = 25;
+
+      //Inverse Kinematics
+      V3 = matrix_kecepatan_inverse[0] * delta_x + matrix_kecepatan_inverse[1] * delta_y + matrix_kecepatan_inverse[2] * 0;
+      V2 = matrix_kecepatan_inverse[3] * delta_x + matrix_kecepatan_inverse[4] * delta_y + matrix_kecepatan_inverse[5] * 0;
+      V1 = matrix_kecepatan_inverse[6] * delta_x + matrix_kecepatan_inverse[7] * delta_y + matrix_kecepatan_inverse[8] * 0;
+      
+      arah_motor1 = 1;  
+      arah_motor2 = 1;
+      arah_motor3 = 1;
+      
+      if (V1 < 0){
+          arah_motor1 = 0;
+      }
+
+      if (V2 < 0){
+          arah_motor2 = 0;
+      }
+
+      if (V3 < 0){
+          arah_motor3 = 0;
+      }
+
+      condition1 = arah_motor1;
+      condition2 = arah_motor2;
+      condition3 = arah_motor3;
+
+      speed1 = abs(V1);
+      speed2 = abs(V2);
+      speed3 = abs(V3);
+
+      Speed_max = max(speed1, max(speed2, speed3));
+      if(Speed_max > 0){
+        speed1 = (speed1 / Speed_max) * Vmax;
+        speed2 = (speed2 / Speed_max) * Vmax;
+        speed3 = (speed3 / Speed_max) * Vmax;
+
+      }else{
+        speed1 = 0;
+        speed2 = 0;
+        speed3 = 0;
+      }
+      
+      flag_timer_motor1 = 0;
+      flag_timer_motor2 = 0;
+      flag_timer_motor3 = 0;
+
+    }else{
+      flag_kecepatan = 1;
+      speed1=0;
+      speed2=0;
+      speed3=0;
+    }
+
+    setMotor1();
+    setMotor2();
+    setMotor3();
   }
 } 
