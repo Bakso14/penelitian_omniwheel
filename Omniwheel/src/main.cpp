@@ -20,6 +20,8 @@ const float keliling_roda = 2 * PI * jar_jari_roda;
 const float cm_per_pulsa = keliling_roda / pulsa_per_putaran;
 const float phi=3.141592653;
 
+double matrix_kecepatan[9] = { -0.5, -0.5, 1, 0.866, -0.866, 0, 10.5158, 10.5158, 10.5158 };
+
 bool firstloop = true;
 const int BUFFER_SIZE = 50;
 char serialBuffer[BUFFER_SIZE];
@@ -112,6 +114,8 @@ void encoder_isr3() {
 }
 
 float kecepatan1, kecepatan2, kecepatan3 = 0;
+float V1,V2,V3 = 0;
+int koordinat_x, koordinat_y, koordinat_theta = 0;
 
 //PID
 const float Kp = 2.0;  // Proporsional
@@ -914,16 +918,25 @@ void loop() {
     waktu_sebelumnya = waktu_sekarang;
 
     kecepatan1 = (float)(((abs(encoder_value1)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
-    current_velocity.v1 = kecepatan1;
+    // current_velocity.v1 = kecepatan1;
     encoder_value1 = 0;
 
     kecepatan2 = (float)(((abs(encoder_value2)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
-    current_velocity.v2 = kecepatan2;
+    // current_velocity.v2 = kecepatan2;
     encoder_value2 = 0;
 
     kecepatan3 = (float)(((abs(encoder_value3)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
-    current_velocity.v3 = kecepatan3;
+    // current_velocity.v3 = kecepatan3;
     encoder_value3 = 0;
+
+    V3 = matrix_kecepatan[0] * kecepatan1 + matrix_kecepatan[1] * kecepatan2 + matrix_kecepatan[2] * kecepatan3;
+    V2 = matrix_kecepatan[3] * kecepatan1 + matrix_kecepatan[4] * kecepatan2 + matrix_kecepatan[5] * kecepatan3;
+    V1 = matrix_kecepatan[6] * kecepatan1 + matrix_kecepatan[7] * kecepatan2 + matrix_kecepatan[8] * kecepatan3;
+    
+    //Xlinear, Ylinear, Omega
+    current_velocity.v1 = V3;
+    current_velocity.v2 = V2;
+    current_velocity.v3 = V1;
 
   }
 
@@ -933,14 +946,23 @@ void loop() {
   //   current_velocity.theta = float(myEulerData.h) / 16.00;
   // }
 
+  //X, Y, Theta
+  koordinat_x     = matrix_kecepatan[0] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan[1] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan[2] * encoder_value3_jarak*cm_per_pulsa;
+  koordinat_y     = matrix_kecepatan[3] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan[4] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan[5] * encoder_value3_jarak*cm_per_pulsa;
+  koordinat_theta = matrix_kecepatan[6] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan[7] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan[8] * encoder_value3_jarak*cm_per_pulsa;
+
   unsigned long waktu_display = millis();
   if(waktu_display - waktu_display_sebelumnya >= 200){
     waktu_display_sebelumnya = waktu_display;
 
-    current_velocity.S1 = encoder_value1_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
-    current_velocity.S2 = encoder_value2_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
-    current_velocity.S3 = encoder_value3_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
+    // current_velocity.S1 = encoder_value1_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
+    // current_velocity.S2 = encoder_value2_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
+    // current_velocity.S3 = encoder_value3_jarak*2*phi*jar_jari_roda/pulsa_per_putaran;
     
+    current_velocity.S3 = (int) koordinat_x; 
+    current_velocity.S2 = (int) koordinat_y;
+    current_velocity.S1 = (int) koordinat_theta;
+
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &current_velocity, sizeof(current_velocity));
     if (result != ESP_OK) {
       Serial.println("Error sending the data");
