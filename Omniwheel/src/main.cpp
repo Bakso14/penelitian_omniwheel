@@ -9,10 +9,17 @@
 
 //inverse kinematics
 double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
+
+//forward kinematics
+double matrix_kecepatan_fw[9] = { -0.5, 0.5, 1, 0.866, -0.866, 0.0, 10.5158, 10.5158, 10.5158 };
+
 double V1, V2, V3, Vmax, Speed_max;
+double x_linier, y_linier, omega;
 int arah_motor1 = 0;
 int arah_motor2 = 0;
 int arah_motor3 = 0;
+float koordinat_x, koordinat_y, koordinat_theta = 0;
+
 
 String inputString;
 double linear_x = 0;
@@ -406,7 +413,7 @@ long jarak_motor3 = 0;
 bool flag_timer_motor1=0;
 bool flag_timer_motor2=0;
 bool flag_timer_motor3=0;
-int flag_kecepatan = 1;
+int flag_kecepatan = 3;
 
 //Transmitter
 uint8_t broadcastAddress[] = {0x08, 0xB6, 0x1F, 0x71, 0xBB, 0xEC};
@@ -872,11 +879,7 @@ void Split_cmd_vel(char* e) {
 
   linear_x = atof(v[0]);
   linear_y = atof(v[1]);
-  linear_z = atof(v[2]);
-
-  angular_x = atof(v[3]);
-  angular_y = atof(v[4]);
-  angular_z = atof(v[5]);
+  angular_z = atof(v[2]);
 
 }
 
@@ -961,7 +964,16 @@ void loop() {
     current_velocity.v3 = kecepatan3;
     encoder_value3 = 0;
 
+    x_linier = matrix_kecepatan_fw[0] * kecepatan1 + matrix_kecepatan_fw[1] * kecepatan2 + matrix_kecepatan_fw[2] * kecepatan3;
+    y_linier = matrix_kecepatan_fw[3] * kecepatan1 + matrix_kecepatan_fw[4] * kecepatan2 + matrix_kecepatan_fw[5] * kecepatan3;
+    omega    = matrix_kecepatan_fw[6] * kecepatan1 + matrix_kecepatan_fw[7] * kecepatan2 + matrix_kecepatan_fw[8] * kecepatan3;
+
   }
+
+  koordinat_x     = matrix_kecepatan_fw[0] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan_fw[1] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[2] * encoder_value3_jarak*cm_per_pulsa;
+  koordinat_y     = matrix_kecepatan_fw[3] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan_fw[4] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[5] * encoder_value3_jarak*cm_per_pulsa;
+  koordinat_theta = matrix_kecepatan_fw[6] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan_fw[7] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[8] * encoder_value3_jarak*cm_per_pulsa;
+
 
   if ((millis() - lastTime) >= 100){
     lastTime = millis();
@@ -986,17 +998,24 @@ void loop() {
     
     }else{
 
-      Serial.print(linear_x);
+      Serial.print(x_linier);
       Serial.print(",");
-      Serial.print(linear_y);
+      Serial.print(y_linier);
       Serial.print(",");
-      Serial.print(angular_z);
+      Serial.print(omega);
+      Serial.print(",");
+      Serial.print(koordinat_x);
+      Serial.print(",");
+      Serial.print(koordinat_y);
+      Serial.print(",");
+      Serial.print(koordinat_theta);
       Serial.print(",");
       Serial.print(kecepatan1);
       Serial.print(",");
       Serial.print(kecepatan2);
       Serial.print(",");
       Serial.println(kecepatan3);
+      
     }
     
 
