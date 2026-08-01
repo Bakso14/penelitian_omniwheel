@@ -2,7 +2,6 @@
 #include <SPI.h>
 #include <esp_now.h>
 #include <WiFi.h>
-#include "BNO055_support.h"		
 #include <Wire.h>
 
 //https://youtu.be/rUbmW4qAh8w?si=d8ImdF8glph8iRu_
@@ -29,9 +28,6 @@ double linear_z = 0;
 double angular_x = 0;
 double angular_y = 0;
 double angular_z = 0;
-
-struct bno055_t myBNO;
-struct bno055_euler myEulerData;
 
 unsigned long lastTime = 0;
 
@@ -978,12 +974,6 @@ void loop() {
   koordinat_y     = matrix_kecepatan_fw[3] * encoder_value3_jarak*cm_per_pulsa + matrix_kecepatan_fw[4] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[5] * encoder_value1_jarak*cm_per_pulsa;
   koordinat_theta = matrix_kecepatan_fw[6] * encoder_value3_jarak*cm_per_pulsa + matrix_kecepatan_fw[7] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[8] * encoder_value1_jarak*cm_per_pulsa;
 
-
-  if ((millis() - lastTime) >= 100){
-    lastTime = millis();
-    bno055_read_euler_hrp(&myEulerData);
-    current_velocity.theta = float(myEulerData.h) / 16.00;
-  }
 
   unsigned long waktu_display = millis();
   if(waktu_display - waktu_display_sebelumnya >= 200){
