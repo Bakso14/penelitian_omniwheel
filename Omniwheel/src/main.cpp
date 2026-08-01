@@ -11,7 +11,7 @@
 double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
 
 //forward kinematics
-double matrix_kecepatan_fw[9] = { -0.5, 0.5, 1, 0.866, -0.866, 0.0, 10.5158, 10.5158, 10.5158 };
+double matrix_kecepatan_fw[9] = { -0.5, -0.5, 1.0, 0.866, -0.866, 0.0, 10.5158, 10.5158, 10.5158 };
 
 double V1, V2, V3, Vmax, Speed_max;
 double x_linier, y_linier, omega;
@@ -134,6 +134,7 @@ void encoder_isr3() {
 }
 
 float kecepatan1, kecepatan2, kecepatan3 = 0;
+float kecepatan1_asli, kecepatan2_asli, kecepatan3_asli = 0;
 
 //PID
 const float Kp = 2.0;  // Proporsional
@@ -952,27 +953,30 @@ void loop() {
   if(waktu_sekarang - waktu_sebelumnya >= 50){
     waktu_sebelumnya = waktu_sekarang;
 
-    kecepatan1 = (float)(((abs(encoder_value1)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
+    kecepatan1_asli = (float)((((encoder_value1)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
+    kecepatan1 = abs(kecepatan1_asli);
     current_velocity.v1 = kecepatan1;
     encoder_value1 = 0;
 
-    kecepatan2 = (float)(((abs(encoder_value2)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
+    kecepatan2_asli = (float)((((encoder_value2)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
+    kecepatan2 = abs(kecepatan2_asli);
     current_velocity.v2 = kecepatan2;
     encoder_value2 = 0;
 
-    kecepatan3 = (float)(((abs(encoder_value3)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
+    kecepatan3_asli = (float)((((encoder_value3)*1200) / pulsa_per_putaran)*rpm_to_radians*jar_jari_roda);
+    kecepatan3 = abs(kecepatan3_asli);
     current_velocity.v3 = kecepatan3;
     encoder_value3 = 0;
 
-    x_linier = matrix_kecepatan_fw[0] * kecepatan1 + matrix_kecepatan_fw[1] * kecepatan2 + matrix_kecepatan_fw[2] * kecepatan3;
-    y_linier = matrix_kecepatan_fw[3] * kecepatan1 + matrix_kecepatan_fw[4] * kecepatan2 + matrix_kecepatan_fw[5] * kecepatan3;
-    omega    = matrix_kecepatan_fw[6] * kecepatan1 + matrix_kecepatan_fw[7] * kecepatan2 + matrix_kecepatan_fw[8] * kecepatan3;
+    x_linier = matrix_kecepatan_fw[0] * kecepatan3_asli + matrix_kecepatan_fw[1] * kecepatan2_asli + matrix_kecepatan_fw[2] * kecepatan1_asli;
+    y_linier = matrix_kecepatan_fw[3] * kecepatan3_asli + matrix_kecepatan_fw[4] * kecepatan2_asli + matrix_kecepatan_fw[5] * kecepatan1_asli;
+    omega    = matrix_kecepatan_fw[6] * kecepatan3_asli + matrix_kecepatan_fw[7] * kecepatan2_asli + matrix_kecepatan_fw[8] * kecepatan1_asli;
 
   }
 
-  koordinat_x     = matrix_kecepatan_fw[0] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan_fw[1] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[2] * encoder_value3_jarak*cm_per_pulsa;
-  koordinat_y     = matrix_kecepatan_fw[3] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan_fw[4] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[5] * encoder_value3_jarak*cm_per_pulsa;
-  koordinat_theta = matrix_kecepatan_fw[6] * encoder_value1_jarak*cm_per_pulsa + matrix_kecepatan_fw[7] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[8] * encoder_value3_jarak*cm_per_pulsa;
+  koordinat_x     = matrix_kecepatan_fw[0] * encoder_value3_jarak*cm_per_pulsa + matrix_kecepatan_fw[1] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[2] * encoder_value1_jarak*cm_per_pulsa;
+  koordinat_y     = matrix_kecepatan_fw[3] * encoder_value3_jarak*cm_per_pulsa + matrix_kecepatan_fw[4] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[5] * encoder_value1_jarak*cm_per_pulsa;
+  koordinat_theta = matrix_kecepatan_fw[6] * encoder_value3_jarak*cm_per_pulsa + matrix_kecepatan_fw[7] * encoder_value2_jarak*cm_per_pulsa + matrix_kecepatan_fw[8] * encoder_value1_jarak*cm_per_pulsa;
 
 
   if ((millis() - lastTime) >= 100){
@@ -997,24 +1001,23 @@ void loop() {
       }
     
     }else{
-
+      Serial.print(koordinat_y);
+      Serial.print(",");
+      Serial.print(koordinat_x);
+      Serial.print(",");
+      Serial.print(koordinat_theta);
+      Serial.print(",");
       Serial.print(x_linier);
       Serial.print(",");
       Serial.print(y_linier);
       Serial.print(",");
       Serial.print(omega);
       Serial.print(",");
-      Serial.print(koordinat_x);
+      Serial.print(kecepatan1_asli);
       Serial.print(",");
-      Serial.print(koordinat_y);
+      Serial.print(kecepatan2_asli);
       Serial.print(",");
-      Serial.print(koordinat_theta);
-      Serial.print(",");
-      Serial.print(kecepatan1);
-      Serial.print(",");
-      Serial.print(kecepatan2);
-      Serial.print(",");
-      Serial.println(kecepatan3);
+      Serial.println(kecepatan3_asli);
       
     }
     

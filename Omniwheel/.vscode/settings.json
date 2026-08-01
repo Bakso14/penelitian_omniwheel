@@ -1,0 +1,19 @@
+{
+    "ROS2.distro": "jazzy",
+    "python.autoComplete.extraPaths": [
+        "/home/sayyid/ros2_ws/install/serial_node/lib/python3.12/site-packages",
+        "/home/sayyid/ros2_ws/install/node_joystick_omni/lib/python3.12/site-packages",
+        "/home/sayyid/ros2_ws/install/coba_opencv/lib/python3.12/site-packages",
+        "/home/sayyid/ws_raspi/install/camera_comm/lib/python3.12/site-packages",
+        "/home/sayyid/ws_mobile/install/joy_tester/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/sayyid/ros2_ws/install/serial_node/lib/python3.12/site-packages",
+        "/home/sayyid/ros2_ws/install/node_joystick_omni/lib/python3.12/site-packages",
+        "/home/sayyid/ros2_ws/install/coba_opencv/lib/python3.12/site-packages",
+        "/home/sayyid/ws_raspi/install/camera_comm/lib/python3.12/site-packages",
+        "/home/sayyid/ws_mobile/install/joy_tester/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ]
+}
