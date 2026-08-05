@@ -10,7 +10,7 @@
 double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317, 0.6667, 0, 0.0317 };
 
 //forward kinematics
-double matrix_kecepatan_fw[9] = { -0.5, -0.5, 1.0, 0.866, -0.866, 0.0, 10.5158, 10.5158, 10.5158 };
+double matrix_kecepatan_fw[9] = { -0.5, -0.5, 1.0, 0.866, -0.866, 0.0, 0.095095, 0.095095, 0.095095 };
 
 double V1, V2, V3, Vmax, Speed_max;
 double x_linier, y_linier, omega;
