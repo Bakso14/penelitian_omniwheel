@@ -12,7 +12,7 @@ double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317
 //forward kinematics
 double matrix_kecepatan_fw[9] = { -0.5, -0.5, 1.0, 0.866, -0.866, 0.0, 0.095095, 0.095095, 0.095095 };
 
-double V1, V2, V3, Vmax, Speed_max, Vmin;
+double V1, V2, V3, Vmax, Speed_max, Vmin, Speed_limit;
 double x_linier, y_linier, omega;
 int arah_motor1 = 0;
 int arah_motor2 = 0;
@@ -1054,17 +1054,16 @@ void loop() {
     speed2 = abs(V2);
     speed3 = abs(V3);
 
-    // Speed_max = max(speed1, max(speed2, speed3));
-    Speed_max = 0.5; //cmd_vel max speed
-    if(Speed_max > 0){
+    Speed_limit = 0.5; //cmd_vel max speed
+    speed1 = (speed1 / Speed_limit) * Vmax;
+    speed2 = (speed2 / Speed_limit) * Vmax;
+    speed3 = (speed3 / Speed_limit) * Vmax;
+
+    Speed_max = max(speed1, max(speed2, speed3));
+    if(Speed_max > Vmax){
       speed1 = (speed1 / Speed_max) * Vmax;
       speed2 = (speed2 / Speed_max) * Vmax;
       speed3 = (speed3 / Speed_max) * Vmax;
-
-    }else{
-      speed1 = 0;
-      speed2 = 0;
-      speed3 = 0;
     }
     
     flag_timer_motor1 = 0;
