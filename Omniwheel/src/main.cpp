@@ -12,7 +12,7 @@ double matrix_kecepatan[9] = { -0.3333, 0.5774, 0.0317, -0.3333, -0.5774, 0.0317
 //forward kinematics
 double matrix_kecepatan_fw[9] = { -0.5, -0.5, 1.0, 0.866, -0.866, 0.0, 0.095095, 0.095095, 0.095095 };
 
-double V1, V2, V3, Vmax, Speed_max;
+double V1, V2, V3, Vmax, Speed_max, Vmin;
 double x_linier, y_linier, omega;
 int arah_motor1 = 0;
 int arah_motor2 = 0;
@@ -1023,6 +1023,7 @@ void loop() {
     Split_cmd_vel(inputCharArray);
 
     Vmax = 25;
+    Vmin = 0;
 
     //Inverse Kinematics
     V3 = matrix_kecepatan[0] * linear_x + matrix_kecepatan[1] * linear_y + matrix_kecepatan[2] * angular_z;
@@ -1053,7 +1054,8 @@ void loop() {
     speed2 = abs(V2);
     speed3 = abs(V3);
 
-    Speed_max = max(speed1, max(speed2, speed3));
+    // Speed_max = max(speed1, max(speed2, speed3));
+    Speed_max = 1; //cmd_vel max speed
     if(Speed_max > 0){
       speed1 = (speed1 / Speed_max) * Vmax;
       speed2 = (speed2 / Speed_max) * Vmax;
