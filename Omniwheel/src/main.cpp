@@ -1055,7 +1055,7 @@ void loop() {
     speed3 = abs(V3);
 
     // Speed_max = max(speed1, max(speed2, speed3));
-    Speed_max = 1; //cmd_vel max speed
+    Speed_max = 0.5; //cmd_vel max speed
     if(Speed_max > 0){
       speed1 = (speed1 / Speed_max) * Vmax;
       speed2 = (speed2 / Speed_max) * Vmax;
