@@ -4,6 +4,13 @@
 #include <WiFi.h>
 #include <Wire.h>
 
+//mpu6050
+#include "GY521.h"
+
+GY521 sensor(0x68);
+
+uint32_t counter = 0;
+
 //https://youtu.be/rUbmW4qAh8w?si=d8ImdF8glph8iRu_
 
 //inverse kinematics
@@ -921,29 +928,32 @@ void setup() {
   ledcWrite(ledChannel4, 0);
   ledcWrite(ledChannel5, 0);
 
-  WiFi.mode(WIFI_STA);
+  Wire.begin();
 
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
-  esp_now_register_recv_cb(OnDataRecv);
-
-  esp_now_register_send_cb(OnDataSent);
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;  
-  peerInfo.encrypt = false;
-  
-  if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    Serial.println("Failed to add peer");
-    return;
+  delay(100);
+  while (sensor.wakeup() == false)
+  {
+    Serial.print(millis());
+    Serial.println("\tCould not connect to GY521: please check the GY521 address (0x68/0x69)");
+    delay(1000);
   }
 
+  sensor.setAccelSensitivity(2);  //  8g
+  sensor.setGyroSensitivity(1);   //  500 degrees/s
+  sensor.setThrottle();
+  Serial.println("start...");
+
+  sensor.calibrate(100);
 
 }
 
 
 void loop() {
+
+  sensor.read();
+  float pitch = sensor.getPitch();
+  float roll  = sensor.getRoll();
+  float yaw   = sensor.getYaw();
   
   unsigned long waktu_sekarang = millis();
   if(waktu_sekarang - waktu_sebelumnya >= 50){
@@ -991,11 +1001,11 @@ void loop() {
       }
     
     }else{
-      Serial.print(koordinat_y);
+      Serial.print(pitch);
       Serial.print(",");
-      Serial.print(koordinat_x);
+      Serial.print(roll);
       Serial.print(",");
-      Serial.print(koordinat_theta);
+      Serial.print(yaw);
       Serial.print(",");
       Serial.print(x_linier);
       Serial.print(",");
